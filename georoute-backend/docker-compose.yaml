@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  graphhopper:
+    image: israelhikingmap/graphhopper
+    ports:
+      - "8989:8989"
+    volumes:
+      - ./src/main/resources/graphhopper/config.yml:/config.yml
+      - ./src/main/resources/graphhopper/maps/map.osm.pbf:/data/map.osm.pbf
+    command: >
+      --input /data/map.osm.pbf
+      --host 0.0.0.0
+      --config /config.yml
