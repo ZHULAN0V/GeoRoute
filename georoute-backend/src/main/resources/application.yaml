@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: georoute
+  mvc:
+    apiversion:
+      use:
+        path-segment: 1
+      default: "1.0"
