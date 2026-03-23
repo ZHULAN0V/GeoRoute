@@ -1,0 +1,56 @@
+.left-menu {
+  display: flex;
+  width: 232px;
+  height: calc(100vh - 32px);
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.23);
+  border-radius: 8px;
+  /* подумать над бэкграундом */
+  background-color: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(4px);
+
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  z-index: 1000;
+
+  overflow-y: auto
+}
+
+
+/* стилизация скроллбара */
+.left-menu::-webkit-scrollbar {
+  width: 3px;
+}
+/* .left-menu::-webkit-scrollbar-track {
+  background: #c4c4c4;
+} */
+.left-menu::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.23);;
+  border-radius: 2px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.buttons {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.up-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.up-buttons button {
+  flex: 1 0 auto;
+}
