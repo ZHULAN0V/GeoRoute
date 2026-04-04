@@ -16,7 +16,6 @@ import { initialId, initialVariantId } from "../../lib/helpers/initialState";
 import { chosePathId, unchosePathId } from "../../providers/paths/current-path-id-reducer";
 import { setPathVariantId, unsetPathVariantId } from "../../providers/paths/current-path-variant-id-reducer";
 
-import createXmlString from "../../lib/helpers/downloadGPX";
 import getArrayOfPoints from "../../lib/helpers/getArrayOfPoints";
 import createXmlStringAnother from "../../lib/helpers/downloadGPXAnother";
 
@@ -50,7 +49,6 @@ function LeftMenu() {
 
   const handleDownload = () => {
     const pathsArray = getArrayOfPoints(pathObject);
-    // console.log(pathsArray);
     const pdfUrl = 'data:text/json;charset=utf-8,' + createXmlStringAnother(pathsArray);
     const link = document.createElement("a");
     link.href = pdfUrl;

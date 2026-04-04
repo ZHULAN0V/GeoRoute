@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { IPath, IPathVariant, IPathVariantPointsObject, IPoint } from '../../services/types/Path'
 import { initialStateRedux } from '../../lib/helpers/initialState'
+import createOrderedPath from '../../lib/helpers/createOrderedPath';
 
 export interface IPathsObject { [index: string]: IPath; }
 
@@ -9,6 +10,11 @@ interface IAddManyPointsProps {
   pathId: string,
   pathVariantId: string,
   points: IPathVariantPointsObject
+}
+
+interface IAddPointBetweenProps {
+  prevPoint: IPoint,
+  nextPoint: IPoint,
 }
 
 export interface PathState {
@@ -23,6 +29,7 @@ export const pathSlice = createSlice({
   name: 'path',
   initialState,
   reducers: {
+    // Действия с основными путями
     addPath: (state, action: PayloadAction<IPath>) => {
       state.paths[action.payload.id] = action.payload;
     },
@@ -32,8 +39,9 @@ export const pathSlice = createSlice({
     editPath: (state, action: PayloadAction<IPath>) => {
       state.paths[action.payload.id] = action.payload;
     },
+
+    // Действия с вариантами
     createPathVariant: (state, action: PayloadAction<IPathVariant>) => {
-      // ебла вобла ну и хуйня конечно
       state.paths[action.payload.pathId]
         .variants[action.payload.id] = action.payload;
     },
@@ -45,17 +53,55 @@ export const pathSlice = createSlice({
       state.paths[action.payload.pathId]
         .variants[action.payload.id] = action.payload;
     },
-    // addMainPathArray: (state, action: PayloadAction<IPath>) => {
-    //   // state.paths[action.payload.id] = action.payload;
-    // },
+
+    // Действия с точками
     addPoint: (state, action: PayloadAction<IPoint>) => {
       // ебла вобла ну и хуйня конечно
-      state.paths[action.payload.pathId].variants[action.payload.pathVariantId].path[action.payload.id] = action.payload;
+      const point = action.payload;
+      // добавляем новую точку в объект
+      state.paths[point.pathId].variants[point.pathVariantId].path[point.id] = point;
       
-      if (state.paths[action.payload.pathId].variants[action.payload.pathVariantId].path[action.payload.prevId] != undefined) {
-        state.paths[action.payload.pathId].variants[action.payload.pathVariantId].path[action.payload.prevId].nextId = action.payload.id
+      // если есть предыдущая точка то обновляем ей nextId 
+      if (state.paths[point.pathId].variants[point.pathVariantId].path[point.prevId] != undefined) {
+        state.paths[point.pathId].variants[point.pathVariantId].path[point.prevId].nextId = point.id
       }
     },
+
+    // добавление точки в середину
+    addPointBetween: (state, action: PayloadAction<IAddPointBetweenProps>) => {
+      const { prevPoint, nextPoint } = action.payload;
+      const newPoindId = crypto.randomUUID();
+      // вычисляем координаты точки
+      const lat = (prevPoint.lat + nextPoint.lat) / 2;
+      const lng = (prevPoint.lng + nextPoint.lng) / 2;
+      // создаем данные для новой точки
+      const newPoint: IPoint = {
+        id: newPoindId,
+        nextId: nextPoint.id,
+        prevId: prevPoint.id,
+        pathId: prevPoint.pathId,
+        pathVariantId: prevPoint.pathVariantId,
+        lat,
+        lng,
+      }
+      // создаем новую точку и добавляет ее в объект 
+      state.paths[newPoint.pathId].variants[newPoint.pathVariantId].path[newPoint.id] = newPoint;
+
+      // обновляем данные для предыдущей и следующей точки чтобы создать свзязь 0---1---2
+      state.paths[prevPoint.pathId].variants[prevPoint.pathVariantId].path[prevPoint.id].nextId = newPoindId;
+      state.paths[nextPoint.pathId].variants[nextPoint.pathVariantId].path[nextPoint.id].prevId = newPoindId;
+
+      // обернуть в try catch
+      // с помощью самописной функции обновляем порядок точек
+      // может херово работать с большим колличеством данных
+      const newPoints = createOrderedPath(state.paths[newPoint.pathId].variants[newPoint.pathVariantId].path);
+      state.paths[newPoint.pathId].variants[newPoint.pathVariantId].path = newPoints.reduce((acc, point) => {
+        acc[point.id] = point;
+        return acc;
+      }, {} as IPathVariantPointsObject);
+
+    },
+    // полностью обновляем путь
     addManyPoint: (state, action: PayloadAction<IAddManyPointsProps>) => {
       state.paths[action.payload.pathId].variants[action.payload.pathVariantId].path = action.payload.points;
     },
@@ -63,7 +109,16 @@ export const pathSlice = createSlice({
      state.paths[action.payload.pathId].variants[action.payload.pathVariantId].path[action.payload.id] = action.payload;
     },
     deletePoint: (state, action: PayloadAction<IPoint>) => {
-      delete state.paths[action.payload.pathId].variants[action.payload.pathVariantId].path[action.payload.id];
+      const point = action.payload;
+      delete state.paths[point.pathId].variants[point.pathVariantId].path[point.id];
+      // есть есть предыдущая точка обновляем для нее nextId
+      if (state.paths[point.pathId].variants[point.pathVariantId].path[point.prevId] != undefined) {
+        state.paths[point.pathId].variants[point.pathVariantId].path[point.prevId].nextId = point.nextId;
+      }
+      // есть есть последующая точка обновляем для нее prevId
+      if (state.paths[point.pathId].variants[point.pathVariantId].path[point.nextId] != undefined) {
+        state.paths[point.pathId].variants[point.pathVariantId].path[point.nextId].prevId = point.prevId;
+      }
     },
   },
 })
@@ -72,10 +127,13 @@ export const {
   addPath, 
   deletePath, 
   editPath, 
+
   createPathVariant, 
   deletePathVariant, 
   editPathVariant, 
+
   addPoint, 
+  addPointBetween,
   addManyPoint,
   editPoint, 
   deletePoint 
