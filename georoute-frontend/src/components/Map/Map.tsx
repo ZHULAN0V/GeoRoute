@@ -35,6 +35,27 @@ import { setSegmentId, clearSegmentId } from '../../providers/paths/current-segm
 import { setSegmentVariantId, clearSegmentVariantId } from '../../providers/paths/current-segment-variant-id-reducer'
 import { randomRouteHexColor } from '../../lib/helpers/routeColors'
 
+// Leaflet uses L.Draggable for both map panning and marker dragging.
+// Patch _onDown so that:
+//   - map panning works only with middle button (button=1, wheel click)
+//   - marker/node dragging works only with LMB (button=0)
+const origOnDown = (L.Draggable.prototype as Record<string, unknown>)._onDown as (e: Event) => void
+;(L.Draggable.prototype as Record<string, unknown>)._onDown = function (
+  this: { _element: HTMLElement; _moved: boolean },
+  e: MouseEvent | TouchEvent,
+) {
+  if ('button' in e) {
+    const isMapDrag = this._element.classList.contains('leaflet-map-pane')
+    if (isMapDrag && e.button !== 1) {
+      // Reset _moved so Leaflet doesn't think a drag just ended and suppress the click event
+      this._moved = false
+      return
+    }
+    if (!isMapDrag && e.button !== 0) return
+  }
+  origOnDown.call(this, e)
+}
+
 const MARKER_PIN_COLOR = '#e53935'
 
 const tileLayerUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
@@ -265,7 +286,7 @@ function Map() {
   const handleMapClick = (e: LeafletMouseEvent) => {
     if (dialogLockedRef.current) return
     const { lat, lng } = e.latlng
-    if (currentButton !== 'edit' || !currentPath) return
+    if (currentButton !== 'edit' || !currentPath || !currentPath.checked) return
 
     if (currentSegId && currentSegVarId) {
       const seg = currentPath.segments[currentSegId]
@@ -308,7 +329,7 @@ function Map() {
   }
 
   const handleMapMouseMove = (e: LeafletMouseEvent) => {
-    if (currentButton !== 'edit' || !currentPath) return
+    if (currentButton !== 'edit' || !currentPath || !currentPath.checked) return
     const { lat, lng } = e.latlng
 
     if (currentSegId && currentSegVarId) {
@@ -541,7 +562,7 @@ function Map() {
             ))}
 
           {/* Current route */}
-          {currentPath && (
+          {currentPath && currentPath.checked && (
             <>
               {renderBasePolyline(currentPath, routeColor)}
               {renderSegmentVariants(currentPath, true)}
@@ -589,7 +610,7 @@ function Map() {
           )}
         </MapContainer>
 
-        {currentSegId && (
+        {currentSegId && currentPath?.checked && (
           <div style={{
             position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)',
             zIndex: 1000, background: '#fff', borderRadius: 8, padding: '6px 16px',

@@ -135,6 +135,10 @@ function RightMenu() {
     return `${fromName} → ${toName}`;
   };
 
+  if (!currentPathId || !path) {
+    return null;
+  }
+
   return (
     <div className={styles['right-menu']}>
       <p>Меню маршрута</p>
