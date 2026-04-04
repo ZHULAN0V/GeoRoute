@@ -1,35 +1,46 @@
-export interface IPathVariantsObject {[index: string]: IPathVariant}
-export interface IPathVariantPointsObject {[index: string]: IPoint}
+export interface IPointsObject { [id: string]: IPoint }
+export interface ISegmentVariantsObject { [id: string]: ISegmentVariant }
+export interface ISegmentsObject { [id: string]: ISegment }
+export interface IMarkersObject { [id: string]: IMarker }
 
 export interface IPoint {
   id: string,
   nextId: string,
   prevId: string,
-  pathId: string,
-  pathVariantId: string,
   lat: number,
   lng: number,
 }
 
-export interface IPathVariant {
+export interface IMarker {
   id: string,
   pathId: string,
   name: string,
+  lat: number,
+  lng: number,
+  order: number,
+}
+
+export interface ISegmentVariant {
+  id: string,
+  segmentId: string,
   color: string,
-  distance: number,
-  checked: boolean,
-  path: IPathVariantPointsObject, // объект координат с ключами в виде id
+  points: IPointsObject,
+}
+
+export interface ISegment {
+  id: string,
+  pathId: string,
+  fromMarkerId: string,
+  toMarkerId: string,
+  activeVariantId: string,
+  variants: ISegmentVariantsObject,
 }
 
 export interface IPath {
   id: string,
   name: string,
   color: string,
-  distance: number,
   checked: boolean,
-  main: [number, number][], // массив координат
-  // mainPathId: string
-  variants: IPathVariantsObject, // объект координат с ключами в виде id
+  markers: IMarkersObject,
+  segments: ISegmentsObject,
 }
-
-

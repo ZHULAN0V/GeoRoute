@@ -11,7 +11,7 @@ const initialState: PathState = {
 }
 
 export const pathSlice = createSlice({
-  name: 'path',
+  name: 'pathLegacy',
   initialState,
   reducers: {
     addPath: (state, action: PayloadAction<IPath>) => {
@@ -28,24 +28,9 @@ export const pathSlice = createSlice({
         }
       }
     },
-    // createPathVariant2: (state, action: PayloadAction<IPathVariant>) => {
-    //   state.paths = [...state.paths.map(x => {
-    //     if (action.payload.pathId == x.id) {
-    //       return {...x, variants: [...x.variants, action.payload]}
-    //     }
-    //     return x;
-    //   }),];
-    // },
-    // deletePathVariant: (state, action: PayloadAction<IPathVariant>) => {
-    //   // state.value -= 1
-    // },
-    // editPathVariant: (state, action: PayloadAction<IPathVariant>) => {
-    //   // state.value += 1
-    // },
   },
 })
 
-// Action creators are generated for each case reducer function
 export const { addPath, deletePath, editPath } = pathSlice.actions
 
 export default pathSlice.reducer
