@@ -1,0 +1,55 @@
+.right-menu {
+  display: flex;
+  width: 232px;
+  height: calc(100vh - 32px);
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.23);
+  border-radius: 8px;
+  /* подумать над бэкграундом */
+  background-color: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(4px); 
+
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  z-index: 1000;
+  overflow-y: auto
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.right-menu::-webkit-scrollbar {
+  width: 3px;
+}
+/* .right-menu::-webkit-scrollbar-track {
+  background: #c4c4c4;
+} */
+.right-menu::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.23);;
+  border-radius: 2px;
+}
+
+.path-data {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.path-data__text {
+  display: flex;
+  justify-content: space-between;
+}
+
+.button {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}

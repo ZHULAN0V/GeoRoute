@@ -1,0 +1,15 @@
+.bottom-menu {
+  display: inline-flex;
+  max-width: 400px;
+  gap: 8px;
+  padding: 8px;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.23);
+  border-radius: 8px;
+
+  position: absolute;
+  z-index: 1000;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+}
