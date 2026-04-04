@@ -5,12 +5,13 @@ import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
 import TurnSharpRightIcon from '@mui/icons-material/TurnSharpRight';
 import styles from "./bottomMenu.module.css"
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectButton } from "../../providers/redux-test/active-button-reducer";
-import type {TButtonType} from "../../providers/redux-test/active-button-reducer";
+import type { TButtonType } from "../../providers/redux-test/active-button-reducer";
+import type { RootState } from "../../providers/store";
 
 function BottomMenu() {
-  // const currentPath = useSelector((state: RootState) => state.currentButton.currentButton)
+  const currentButton = useSelector((state: RootState) => state.currentButton.currentButton);
   const dispatch = useDispatch();
 
   const handleClick = (action: TButtonType) => {
@@ -18,11 +19,18 @@ function BottomMenu() {
       dispatch(selectButton(action))
     }
   }
-  
+
   return (
     <div className={styles['bottom-menu']}>
-      {/* qwertyu */}
-      <IconButton onClick={handleClick('edit')}><EditIcon sx={{ color: '#212121' }}/></IconButton>
+      <IconButton
+        onClick={handleClick('edit')}
+        sx={{
+          backgroundColor: currentButton === 'edit' ? 'rgba(37, 99, 235, 0.16)' : 'transparent',
+          '&:hover': { backgroundColor: currentButton === 'edit' ? 'rgba(37, 99, 235, 0.24)' : undefined },
+        }}
+      >
+        <EditIcon sx={{ color: currentButton === 'edit' ? '#2563eb' : '#212121' }}/>
+      </IconButton>
       <IconButton onClick={handleClick('delete')}><DeleteIcon sx={{ color: '#212121' }}/></IconButton>
       <IconButton onClick={handleClick('double')}><TurnSharpRightIcon sx={{ color: '#212121' }}/></IconButton>
       <IconButton onClick={handleClick('undo')}><UndoIcon sx={{ color: '#212121' }}/></IconButton>

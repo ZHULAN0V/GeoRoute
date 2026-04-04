@@ -1,4 +1,5 @@
 .map {
+    position: relative;
     height: 100vh;
     width: 100vw;
     border: 1px solid #000;
@@ -10,4 +11,70 @@
     height: 100vh;
     width: 100vw;
     cursor: default !important;
+}
+
+/* Маркеры-точки (DivIcon): убрать рамку стандартного leaflet-div-icon */
+:global(.georoute-marker-wrap) {
+    background: transparent !important;
+    border: none !important;
+}
+
+:global(.georoute-node) {
+    width: 7px;
+    height: 7px;
+    transform: rotate(45deg);
+    box-sizing: border-box;
+    border: 2px solid var(--node-stroke, #333);
+    background: #fff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+:global(.georoute-place) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: auto;
+}
+
+:global(.georoute-place-pin) {
+    display: block;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+}
+
+:global(.georoute-place-label) {
+    margin-top: 2px;
+    max-width: 120px;
+    padding: 1px 5px;
+    font-size: 10px;
+    line-height: 1.2;
+    color: #1a1a1a;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+}
+
+:global(.georoute-plus-btn) {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #2563eb;
+    color: #2563eb;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 20px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+:global(.georoute-plus-btn:hover) {
+    background: #2563eb;
+    color: #fff;
+    transform: scale(1.15);
 }

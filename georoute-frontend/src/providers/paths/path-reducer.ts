@@ -1,15 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import type { IPath, IPathVariant, IPathVariantPointsObject, IPoint } from '../../services/types/Path'
+import type { IPath, IMarker, ISegment, ISegmentVariant, IPoint } from '../../services/types/Path'
 import { initialStateRedux } from '../../lib/helpers/initialState'
 
-export interface IPathsObject { [index: string]: IPath; }
-
-interface IAddManyPointsProps {
-  pathId: string,
-  pathVariantId: string,
-  points: IPathVariantPointsObject
-}
+export interface IPathsObject { [index: string]: IPath }
 
 export interface PathState {
   paths: IPathsObject
@@ -32,53 +26,120 @@ export const pathSlice = createSlice({
     editPath: (state, action: PayloadAction<IPath>) => {
       state.paths[action.payload.id] = action.payload;
     },
-    createPathVariant: (state, action: PayloadAction<IPathVariant>) => {
-      // ебла вобла ну и хуйня конечно
-      state.paths[action.payload.pathId]
-        .variants[action.payload.id] = action.payload;
+
+    addMarker: (state, action: PayloadAction<{ pathId: string; marker: IMarker }>) => {
+      const { pathId, marker } = action.payload;
+      state.paths[pathId].markers[marker.id] = marker;
     },
-    deletePathVariant: (state, action: PayloadAction<IPathVariant>) => {
-      delete state.paths[action.payload.pathId]
-        .variants[action.payload.id];
+    editMarker: (state, action: PayloadAction<{ pathId: string; marker: IMarker }>) => {
+      const { pathId, marker } = action.payload;
+      state.paths[pathId].markers[marker.id] = marker;
     },
-    editPathVariant: (state, action: PayloadAction<IPathVariant>) => {
-      state.paths[action.payload.pathId]
-        .variants[action.payload.id] = action.payload;
-    },
-    // addMainPathArray: (state, action: PayloadAction<IPath>) => {
-    //   // state.paths[action.payload.id] = action.payload;
-    // },
-    addPoint: (state, action: PayloadAction<IPoint>) => {
-      // ебла вобла ну и хуйня конечно
-      state.paths[action.payload.pathId].variants[action.payload.pathVariantId].path[action.payload.id] = action.payload;
-      
-      if (state.paths[action.payload.pathId].variants[action.payload.pathVariantId].path[action.payload.prevId] != undefined) {
-        state.paths[action.payload.pathId].variants[action.payload.pathVariantId].path[action.payload.prevId].nextId = action.payload.id
+    deleteMarker: (state, action: PayloadAction<{ pathId: string; markerId: string }>) => {
+      const { pathId, markerId } = action.payload;
+      delete state.paths[pathId].markers[markerId];
+      for (const segId of Object.keys(state.paths[pathId].segments)) {
+        const seg = state.paths[pathId].segments[segId];
+        if (seg.fromMarkerId === markerId || seg.toMarkerId === markerId) {
+          delete state.paths[pathId].segments[segId];
+        }
       }
     },
-    addManyPoint: (state, action: PayloadAction<IAddManyPointsProps>) => {
-      state.paths[action.payload.pathId].variants[action.payload.pathVariantId].path = action.payload.points;
+
+    addSegment: (state, action: PayloadAction<{ pathId: string; segment: ISegment }>) => {
+      const { pathId, segment } = action.payload;
+      state.paths[pathId].segments[segment.id] = segment;
     },
-    editPoint: (state, action: PayloadAction<IPoint>) => {
-     state.paths[action.payload.pathId].variants[action.payload.pathVariantId].path[action.payload.id] = action.payload;
+    deleteSegment: (state, action: PayloadAction<{ pathId: string; segmentId: string }>) => {
+      const { pathId, segmentId } = action.payload;
+      delete state.paths[pathId].segments[segmentId];
     },
-    deletePoint: (state, action: PayloadAction<IPoint>) => {
-      delete state.paths[action.payload.pathId].variants[action.payload.pathVariantId].path[action.payload.id];
+
+    addSegmentVariant: (
+      state,
+      action: PayloadAction<{ pathId: string; segmentId: string; variant: ISegmentVariant }>
+    ) => {
+      const { pathId, segmentId, variant } = action.payload;
+      state.paths[pathId].segments[segmentId].variants[variant.id] = variant;
+    },
+    editSegmentVariant: (
+      state,
+      action: PayloadAction<{ pathId: string; segmentId: string; variant: ISegmentVariant }>
+    ) => {
+      const { pathId, segmentId, variant } = action.payload;
+      state.paths[pathId].segments[segmentId].variants[variant.id] = variant;
+    },
+    setActiveSegmentVariant: (
+      state,
+      action: PayloadAction<{ pathId: string; segmentId: string; variantId: string }>
+    ) => {
+      const { pathId, segmentId, variantId } = action.payload;
+      state.paths[pathId].segments[segmentId].activeVariantId = variantId;
+    },
+    deleteSegmentVariant: (
+      state,
+      action: PayloadAction<{ pathId: string; segmentId: string; variantId: string }>
+    ) => {
+      const { pathId, segmentId, variantId } = action.payload;
+      delete state.paths[pathId].segments[segmentId].variants[variantId];
+    },
+
+    addSegmentPoint: (
+      state,
+      action: PayloadAction<{
+        pathId: string; segmentId: string; segmentVariantId: string; point: IPoint
+      }>
+    ) => {
+      const { pathId, segmentId, segmentVariantId, point } = action.payload;
+      const variant = state.paths[pathId].segments[segmentId].variants[segmentVariantId];
+      variant.points[point.id] = point;
+      if (point.prevId && variant.points[point.prevId]) {
+        variant.points[point.prevId].nextId = point.id;
+      }
+    },
+    editSegmentPoint: (
+      state,
+      action: PayloadAction<{
+        pathId: string; segmentId: string; segmentVariantId: string; point: IPoint
+      }>
+    ) => {
+      const { pathId, segmentId, segmentVariantId, point } = action.payload;
+      state.paths[pathId].segments[segmentId].variants[segmentVariantId].points[point.id] = point;
+    },
+    deleteSegmentPoint: (
+      state,
+      action: PayloadAction<{
+        pathId: string; segmentId: string; segmentVariantId: string; pointId: string
+      }>
+    ) => {
+      const { pathId, segmentId, segmentVariantId, pointId } = action.payload;
+      const pts = state.paths[pathId].segments[segmentId].variants[segmentVariantId].points;
+      const pt = pts[pointId];
+      if (pt) {
+        if (pt.prevId && pts[pt.prevId]) pts[pt.prevId].nextId = pt.nextId;
+        if (pt.nextId && pts[pt.nextId]) pts[pt.nextId].prevId = pt.prevId;
+        delete pts[pointId];
+      }
     },
   },
 })
 
-export const { 
-  addPath, 
-  deletePath, 
-  editPath, 
-  createPathVariant, 
-  deletePathVariant, 
-  editPathVariant, 
-  addPoint, 
-  addManyPoint,
-  editPoint, 
-  deletePoint 
+export const {
+  addPath,
+  deletePath,
+  editPath,
+  addMarker,
+  editMarker,
+  deleteMarker,
+  addSegment,
+  deleteSegment,
+  addSegmentVariant,
+  editSegmentVariant,
+  setActiveSegmentVariant,
+  deleteSegmentVariant,
+  addSegmentPoint,
+  editSegmentPoint,
+  deleteSegmentPoint,
 } = pathSlice.actions
 
 export default pathSlice.reducer

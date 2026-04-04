@@ -3,120 +3,264 @@ import styles from "./rightMenu.module.css"
 import { TextField, Button } from "@mui/material";
 import type { RootState } from "../../providers/store";
 import { useEffect, useMemo, useState } from "react";
-import { editPath } from "../../providers/redux-test/path-reducer";
-import PathVariant from "../../components/PathVariant/PathVariant";
-// import { createPathVariant2 } from "../../providers/redux-test/path-reducer";
-// import { createPathVariant } from "../../providers/redux-test/current-path-reducer";
-import { createPathVariant, editPathVariant } from "../../providers/paths/path-reducer";
+import { editPath, editSegmentVariant, addSegmentVariant, setActiveSegmentVariant, deleteSegmentVariant } from "../../providers/paths/path-reducer";
 import { useDebouncedCallback } from "use-debounce";
 import AddIcon from '@mui/icons-material/Add';
-
+import { formatDistanceKm, getSegmentLengthKm, getPathTotalLengthKm, getOrderedMarkers } from '../../lib/helpers/pathGeometry';
+import { setSegmentId } from "../../providers/paths/current-segment-id-reducer";
+import { setSegmentVariantId } from "../../providers/paths/current-segment-variant-id-reducer";
+import { randomRouteHexColor } from "../../lib/helpers/routeColors";
 
 function RightMenu() {
   const currentPathId = useSelector((state: RootState) => state.currentPathId.currentPathId);
-  const currentPathVariantId = useSelector((state: RootState) => state.currentPathVariantId.currentPathVariantId);
+  const currentSegId = useSelector((state: RootState) => state.currentSegmentId.currentSegmentId);
+  const currentSegVarId = useSelector((state: RootState) => state.currentSegmentVariantId.currentSegmentVariantId);
   const pathObject = useSelector((state: RootState) => state.pathObject.paths);
   const path = useMemo(() => pathObject[currentPathId], [pathObject, currentPathId]);
+
   const dispatch = useDispatch();
 
   const [name, setName] = useState(path?.name || '');
   const [color, setColor] = useState(path?.color || '');
-  const [variantName, setVariantName] = useState(path?.variants[currentPathVariantId]?.name || '');
-  const [variantColor, setVariantColor] = useState(path?.variants[currentPathVariantId]?.color || '');
+  const [variantColor, setVariantColor] = useState('');
 
-  // const onSavePath = () => {
-  //   dispatch(editPath({...path!, name, color}));
-  //   dispatch(editPathVariant({...path?.variants[currentPathVariantId], name: variantName, color: variantColor}));
-  // }
+  const multiVariantSegments = useMemo(
+    () => path
+      ? Object.values(path.segments).filter((s) => Object.keys(s.variants).length > 1)
+      : [],
+    [path]
+  );
+  const orderedMarkers = useMemo(() => path ? getOrderedMarkers(path) : [], [path]);
+  const promotedCount = useMemo(() => orderedMarkers.filter((m) => m.name.trim() !== '').length, [orderedMarkers]);
 
-  const debounced = useDebouncedCallback(() => {
-      dispatch(editPath({...path!, name, color}));
-      dispatch(editPathVariant({...path?.variants[currentPathVariantId], name: variantName, color: variantColor}));
-    }, 300 );
+  const activeSegment = currentSegId ? path?.segments[currentSegId] : null;
+  const activeVariant = activeSegment && currentSegVarId
+    ? activeSegment.variants[currentSegVarId] : null;
 
-  const onAddPathVariant = () => {
-    const newItem = {
-      id: crypto.randomUUID(),
-      pathId: path?.id || '',
-      name: path?.name || '',
-      color: path?.color || '#000000',
-      distance: 0,
-      checked: false,
-      path: {},
-    };
-    dispatch(createPathVariant(newItem));
-  }
+  const totalLength = useMemo(() => path ? getPathTotalLengthKm(path) : 0, [path]);
+
+  const activeSegLength = useMemo(() => {
+    if (!activeSegment || !currentSegVarId || !path) return 0;
+    return getSegmentLengthKm(activeSegment, currentSegVarId, path.markers);
+  }, [activeSegment, currentSegVarId, path]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setVariantName(path?.variants[currentPathVariantId]?.name || '');
-    setVariantColor(path?.variants[currentPathVariantId]?.color || '');
-  }, [currentPathVariantId, path?.variants])
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setName(path?.name || '');
     setColor(path?.color || '');
-  }, [path])
-  
+  }, [path?.id, path?.name, path?.color]);
+
+  useEffect(() => {
+    setVariantColor(activeVariant?.color || '');
+  }, [activeVariant?.color, currentSegVarId]);
+
+  const debouncedSave = useDebouncedCallback(() => {
+    if (!path) return;
+    dispatch(editPath({ ...path, name, color }));
+  }, 300);
+
+  const debouncedVariantSave = useDebouncedCallback(() => {
+    if (!activeVariant || !activeSegment) return;
+    dispatch(editSegmentVariant({
+      pathId: currentPathId,
+      segmentId: activeSegment.id,
+      variant: { ...activeVariant, color: variantColor },
+    }));
+  }, 300);
+
+  const handleAddVariant = () => {
+    if (!activeSegment) return;
+    const varId = crypto.randomUUID();
+    dispatch(addSegmentVariant({
+      pathId: currentPathId,
+      segmentId: activeSegment.id,
+      variant: {
+        id: varId,
+        segmentId: activeSegment.id,
+        color: randomRouteHexColor(),
+        points: {},
+      },
+    }));
+    dispatch(setActiveSegmentVariant({
+      pathId: currentPathId,
+      segmentId: activeSegment.id,
+      variantId: varId,
+    }));
+    dispatch(setSegmentVariantId(varId));
+  };
+
+  const handleSelectSegment = (segId: string) => {
+    const seg = path?.segments[segId];
+    if (!seg) return;
+    dispatch(setSegmentId(segId));
+    dispatch(setSegmentVariantId(seg.activeVariantId));
+  };
+
+  const handleSelectVariant = (varId: string) => {
+    if (!activeSegment) return;
+    dispatch(setActiveSegmentVariant({
+      pathId: currentPathId,
+      segmentId: activeSegment.id,
+      variantId: varId,
+    }));
+    dispatch(setSegmentVariantId(varId));
+  };
+
+  const handleDeleteVariant = (varId: string) => {
+    if (!activeSegment) return;
+    const remaining = Object.keys(activeSegment.variants).filter((k) => k !== varId);
+    if (remaining.length === 0) return;
+    dispatch(deleteSegmentVariant({
+      pathId: currentPathId,
+      segmentId: activeSegment.id,
+      variantId: varId,
+    }));
+    if (currentSegVarId === varId) {
+      const next = remaining[0];
+      dispatch(setActiveSegmentVariant({
+        pathId: currentPathId,
+        segmentId: activeSegment.id,
+        variantId: next,
+      }));
+      dispatch(setSegmentVariantId(next));
+    }
+  };
+
+  const getSegmentLabel = (segId: string) => {
+    const seg = path?.segments[segId];
+    if (!seg || !path) return segId;
+    const fromM = path.markers[seg.fromMarkerId];
+    const toM = path.markers[seg.toMarkerId];
+    const fromName = fromM?.name?.trim() || 'узел';
+    const toName = toM?.name?.trim() || 'узел';
+    return `${fromName} → ${toName}`;
+  };
+
+  if (!currentPathId || !path) {
+    return null;
+  }
+
   return (
     <div className={styles['right-menu']}>
       <p>Меню маршрута</p>
-      <TextField 
+      <TextField
         label="Название маршрута"
         variant='outlined'
         size='small'
-        sx={{backgroundColor: '#ffffff', borderRadius: '4px'}}
+        sx={{ backgroundColor: '#ffffff', borderRadius: '4px' }}
         value={name}
-        onChange={(e) => {setName(e.target.value); debounced()}}
-        // onChange={debounced}
+        onChange={(e) => { setName(e.target.value); debouncedSave(); }}
       />
-      <TextField 
-        label="Цвет маршрута"
-        variant='outlined'
-        size='small'
-        sx={{backgroundColor: '#ffffff', borderRadius: '4px'}}
-        value={color}
-        onChange={(e) => {setColor(e.target.value); debounced()}}
-      />
-      <p>Варианты маршрута</p>
-      <div className={styles['list']}>
-        {path && Object.values(pathObject[path.id]?.variants).map((variant) => 
-          <PathVariant key={variant.id} pathVariant={variant}/>
-        )}
+      <div className={styles['color-row']}>
+        <TextField
+          label="Цвет маршрута (HEX)"
+          variant='outlined'
+          size='small'
+          sx={{ backgroundColor: '#ffffff', borderRadius: '4px', flex: 1, minWidth: 0 }}
+          value={color}
+          onChange={(e) => { setColor(e.target.value); debouncedSave(); }}
+        />
+        <input
+          type="color"
+          className={styles['color-picker']}
+          value={/^#[0-9A-Fa-f]{6}$/i.test(color) ? color : '#ff0000'}
+          onChange={(e) => { setColor(e.target.value); debouncedSave(); }}
+        />
       </div>
-      {/* попробовать найти библиотеку для выбора цвета */}
-      <TextField 
-        label="Название варианта"
-        variant='outlined'
-        size='small'
-        sx={{backgroundColor: '#ffffff', borderRadius: '4px'}}
-        value={variantName}
-        onChange={(e) => {setVariantName(e.target.value); debounced()}}
-      />
-      <TextField 
-        label="Цвет варианта"
-        variant='outlined'
-        size='small'
-        sx={{backgroundColor: '#ffffff', borderRadius: '4px'}}
-        value={variantColor}
-        onChange={(e) => {setVariantColor(e.target.value); debounced()}}
-      />
+
       <div className={styles['path-data']}>
-        <div className={styles['path-data__text']}><p>Протяженность:</p> <p>12.7 km</p></div>
-        {/* <div className={styles['path-data__text']}><p>По тратуару:</p> <p>10 km</p></div>
-        <div className={styles['path-data__text']}><p>По тропам:</p> <p>2 km</p></div>
-        <div className={styles['path-data__text']}><p>По лесу:</p> <p>0.5 km</p></div>
-        <div className={styles['path-data__text']}><p>По ЖД:</p> <p>0.2 km</p></div> */}
+        <div className={styles['path-data__text']}>
+          <p>Общая длина:</p> <p>{formatDistanceKm(totalLength)}</p>
+        </div>
+        <div className={styles['path-data__text']}>
+          <p>Точек:</p> <p>{orderedMarkers.length}</p>
+        </div>
+        <div className={styles['path-data__text']}>
+          <p>Маркеров:</p> <p>{promotedCount}</p>
+        </div>
       </div>
-      <Button startIcon={<AddIcon/>} onClick={onAddPathVariant}>Добавить вариант</Button>
-      {/* <div className={styles.button}>
-        <Button variant="contained" onClick={onSavePath}>Сохранить маршрут</Button>
-      </div> */}
-      
+
+      {multiVariantSegments.length > 0 && (
+        <>
+          <p>Сегменты с вариантами</p>
+          <div className={styles['list']}>
+            {multiVariantSegments.map((seg) => (
+              <div
+                key={seg.id}
+                className={`${styles['segment-item']} ${seg.id === currentSegId ? styles['active'] : ''}`}
+                onClick={() => handleSelectSegment(seg.id)}
+              >
+                <span className={styles['segment-label']}>{getSegmentLabel(seg.id)}</span>
+                <span className={styles['segment-vars']}>
+                  {Object.keys(seg.variants).length} вар.
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {activeSegment && (
+        <>
+          <p>Варианты сегмента</p>
+          <div className={styles['list']}>
+            {Object.values(activeSegment.variants).map((v) => (
+              <div
+                key={v.id}
+                className={`${styles['segment-item']} ${v.id === currentSegVarId ? styles['active'] : ''}`}
+                onClick={() => handleSelectVariant(v.id)}
+              >
+                <div
+                  style={{ backgroundColor: v.color || path?.color, width: 14, height: 14, borderRadius: 3, marginRight: 6, flexShrink: 0, border: '1px solid rgba(0,0,0,.12)' }}
+                />
+                <span className={styles['segment-label']}>
+                  {v.id === currentSegVarId ? '● ' : ''}
+                  {formatDistanceKm(getSegmentLengthKm(activeSegment, v.id, path!.markers))}
+                </span>
+                {Object.keys(activeSegment.variants).length > 1 && (
+                  <Button
+                    size="small"
+                    color="error"
+                    sx={{ minWidth: 0, p: '2px 4px', ml: 'auto' }}
+                    onClick={(e) => { e.stopPropagation(); handleDeleteVariant(v.id); }}
+                  >
+                    ✕
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+          <Button startIcon={<AddIcon />} onClick={handleAddVariant}>
+            Добавить вариант
+          </Button>
+
+          {activeVariant && (
+            <div className={styles['color-row']}>
+              <TextField
+                label="Цвет варианта"
+                variant='outlined'
+                size='small'
+                sx={{ backgroundColor: '#ffffff', borderRadius: '4px', flex: 1, minWidth: 0 }}
+                value={variantColor}
+                onChange={(e) => { setVariantColor(e.target.value); debouncedVariantSave(); }}
+              />
+              <input
+                type="color"
+                className={styles['color-picker']}
+                value={/^#[0-9A-Fa-f]{6}$/i.test(variantColor) ? variantColor : '#ff0000'}
+                onChange={(e) => { setVariantColor(e.target.value); debouncedVariantSave(); }}
+              />
+            </div>
+          )}
+
+          <div className={styles['path-data']}>
+            <div className={styles['path-data__text']}>
+              <p>Длина сегмента:</p> <p>{formatDistanceKm(activeSegLength)}</p>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
 
 export default RightMenu;
-

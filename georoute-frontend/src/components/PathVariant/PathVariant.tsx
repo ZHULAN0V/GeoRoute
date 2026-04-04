@@ -2,68 +2,63 @@ import styles from './pathVariant.module.css'
 import { IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
-import type { IPathVariant } from '../../services/types/Path';
-import type { RootState } from '../../providers/store';
-import { useDispatch, useSelector } from 'react-redux';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
-import { deletePathVariant, editPathVariant } from '../../providers/paths/path-reducer';
-import { setPathVariantId } from '../../providers/paths/current-path-variant-id-reducer';
+import type { ISegmentVariant, ISegment, IMarkersObject } from '../../services/types/Path';
+import { useDispatch } from 'react-redux';
+import { deleteSegmentVariant, setActiveSegmentVariant } from '../../providers/paths/path-reducer';
+import { setSegmentVariantId } from '../../providers/paths/current-segment-variant-id-reducer';
+import { formatDistanceKm, getSegmentLengthKm } from '../../lib/helpers/pathGeometry';
 
 interface IPathVariantProps {
-  pathVariant: IPathVariant
+  variant: ISegmentVariant
+  segment: ISegment
+  pathId: string
+  markers: IMarkersObject
+  isActive: boolean
 }
 
 function PathVariant(props: IPathVariantProps) {
-  const { pathVariant } = props;
-  // const pathObject = useSelector((state: RootState) => state.pathObject.paths)
-  const currentPathVariantId = useSelector((state: RootState) => state.currentPathVariantId.currentPathVariantId);
-
+  const { variant, segment, pathId, markers, isActive } = props;
   const dispatch = useDispatch();
 
   const handleDelete = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      e.stopPropagation();
-      dispatch(deletePathVariant(pathVariant));
-      // if (currentPathId == path.id) {
-      //   dispatch(unchosePath());
-      // }
-    };
-  
-    const handleChosePath = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      e.stopPropagation();
-      dispatch(setPathVariantId(pathVariant.id));
-    };
-  
-    const handleSetCheckedPath = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      e.stopPropagation();
-      dispatch(editPathVariant({...pathVariant, checked: !pathVariant.checked}));
-    };
+    e.stopPropagation();
+    if (Object.keys(segment.variants).length <= 1) return;
+    dispatch(deleteSegmentVariant({ pathId, segmentId: segment.id, variantId: variant.id }));
+  };
+
+  const handleChose = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.stopPropagation();
+    dispatch(setActiveSegmentVariant({ pathId, segmentId: segment.id, variantId: variant.id }));
+    dispatch(setSegmentVariantId(variant.id));
+  };
+
+  const length = getSegmentLengthKm(segment, variant.id, markers);
 
   return (
-    <div className={`${styles['path-item']} ${styles[currentPathVariantId == pathVariant.id ? 'active' : '']}`} onClick={handleChosePath}>
+    <div className={`${styles['path-item']} ${styles[isActive ? 'active' : '']}`} onClick={handleChose}>
       <div className={styles['left-block']}>
-        <p className={styles['title']}>{ pathVariant.name }</p>
-        <p className={styles['description']}>12.7 km</p>
+        <p className={styles['title']}>{formatDistanceKm(length)}</p>
       </div>
       <div className={styles['right-block']}>
         <div className={styles['color']}>
-          <div className={styles['color-box']} style={{backgroundColor: pathVariant.color}}></div>
-          <div className={styles['color-text']}>{pathVariant.color}</div>
+          <div className={styles['color-box']} style={{ backgroundColor: variant.color }}></div>
+          <div className={styles['color-text']}>{variant.color}</div>
         </div>
         <div className={styles['buttons']}>
-          <IconButton 
+          <IconButton
             onClick={handleDelete}
-            sx={{width: 28, height: 28}}
+            sx={{ width: 28, height: 28 }}
+            disabled={Object.keys(segment.variants).length <= 1}
           >
-            <DeleteIcon
-              sx={{width: 20, height: 20, color: '#212121'}}
-            />
+            <DeleteIcon sx={{ width: 20, height: 20, color: '#212121' }} />
           </IconButton>
-          <IconButton 
-            onClick={handleSetCheckedPath}
-            sx={{width: 28, height: 28}}
+          <IconButton
+            sx={{ width: 28, height: 28 }}
           >
-            {pathVariant.checked && <RadioButtonCheckedIcon sx={{width: 20, height: 20, color: '#212121'}} />}
-            {!pathVariant.checked && <RadioButtonUncheckedIcon sx={{width: 20, height: 20, color: '#212121'}} />}
+            {isActive
+              ? <RadioButtonCheckedIcon sx={{ width: 20, height: 20, color: '#212121' }} />
+              : <RadioButtonUncheckedIcon sx={{ width: 20, height: 20, color: '#212121' }} />}
           </IconButton>
         </div>
       </div>

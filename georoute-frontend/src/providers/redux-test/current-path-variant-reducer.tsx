@@ -1,9 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import type { IPathVariant } from '../../services/types/Path'
+import type { ISegmentVariant } from '../../services/types/Path'
 
 export interface PathVariantState {
-  currentPathVariant: IPathVariant | null
+  currentPathVariant: ISegmentVariant | null
 }
 
 const initialState: PathVariantState = {
@@ -14,7 +14,7 @@ export const currentPathVariantSlice = createSlice({
   name: 'currentPathVariant',
   initialState,
   reducers: {
-    chosePathVariant: (state, action: PayloadAction<IPathVariant>) => {
+    chosePathVariant: (state, action: PayloadAction<ISegmentVariant>) => {
       state.currentPathVariant = action.payload;
     },
     unchosePathVariant: (state) => {
@@ -23,7 +23,6 @@ export const currentPathVariantSlice = createSlice({
   },
 })
 
-// Action creators are generated for each case reducer function
 export const { chosePathVariant, unchosePathVariant } = currentPathVariantSlice.actions
 
 export default currentPathVariantSlice.reducer
