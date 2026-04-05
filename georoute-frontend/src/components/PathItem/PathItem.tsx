@@ -10,6 +10,7 @@ import { memo } from 'react'
 import type { RootState } from '../../providers/store';
 import { chosePathId, unchosePathId } from '../../providers/paths/current-path-id-reducer';
 import { setPathVariantId } from '../../providers/paths/current-path-variant-id-reducer';
+import { useDeleteFileByName } from '../../hooks/useDeleteFileByName';
 
 interface IPathItemProps {
   path: IPath
@@ -18,13 +19,15 @@ interface IPathItemProps {
 function PathItem(props: IPathItemProps) {
   const { path } = props;
 
-  // const paths = useSelector((state: RootState) => state.pathObject.paths)
   const currentPathId = useSelector((state: RootState) => state.currentPathId.currentPathId)
   const dispatch = useDispatch();
+
+  const {mutate: deleteFile, isPending} = useDeleteFileByName();
 
   const handleDelete = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation();
     dispatch(deletePath(path.id));
+    deleteFile({fileName: path.name});
     if (currentPathId == path.id) {
       dispatch(unchosePathId());
     }
@@ -56,6 +59,7 @@ function PathItem(props: IPathItemProps) {
           <IconButton 
             sx={{width: 28, height: 28}}
             onClick={handleDelete}
+            loading={isPending}
           >
             <DeleteIcon
               sx={{width: 20, height: 20, color: '#212121'}}

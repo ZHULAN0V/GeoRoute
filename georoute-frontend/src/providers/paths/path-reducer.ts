@@ -4,6 +4,10 @@ import type { IPath, IPathVariant, IPathVariantPointsObject, IPoint } from '../.
 import { initialStateRedux } from '../../lib/helpers/initialState'
 import createOrderedPath from '../../lib/helpers/createOrderedPath';
 
+// todo разбить на несколько слайсов, 
+// так как сейчас слишком много логики в одном месте, 
+// и она не всегда связана между собой
+
 export interface IPathsObject { [index: string]: IPath; }
 
 interface IAddManyPointsProps {
@@ -12,9 +16,19 @@ interface IAddManyPointsProps {
   points: IPathVariantPointsObject
 }
 
+interface IAddManyPointsFromMatchedProps {
+  pathId: string,
+  pathVariantId: string,
+  poinstArray: [number, number][],
+}
+
 interface IAddPointBetweenProps {
   prevPoint: IPoint,
   nextPoint: IPoint,
+}
+
+interface IAddPathFromImportProps {
+  points: [number, number][],
 }
 
 export interface PathState {
@@ -39,6 +53,79 @@ export const pathSlice = createSlice({
     editPath: (state, action: PayloadAction<IPath>) => {
       state.paths[action.payload.id] = action.payload;
     },
+    addPathFromImport: (state, action: PayloadAction<IAddPathFromImportProps>) => {
+      const latlngArray = action.payload.points;
+      const id = crypto.randomUUID();
+      const variantId = crypto.randomUUID();
+
+      // todo вынести логику в helper она повторяется
+      const path = latlngArray.map(x => ({
+        id: crypto.randomUUID(),
+        nextId: '',
+        prevId: '',
+        pathId: id,
+        pathVariantId: variantId,
+        lat: x[0],
+        lng: x[1],
+      } as IPoint)).reduce((acc: IPathVariantPointsObject, point, index, arr) => {
+        if (index > 0) {
+          point.prevId = arr[index - 1].id;
+        }
+        if (index < arr.length - 1) {
+          point.nextId = arr[index + 1].id;
+        }
+        return {...acc, [point.id]: point};
+      }, {} as IPathVariantPointsObject);
+
+
+      state.paths[id] = {
+        id: id,
+        name: 'new path',
+        color: '#ff0000',
+        distance: 0,
+        checked: true,
+        main: [],
+        variants: {
+          [variantId]: {
+            id: variantId,
+            pathId: id,
+            name: 'Вариант 1',
+            color: '#ff0000',
+            distance: 0,
+            checked: true,
+            path: path,
+          }
+        },
+      };
+      // state.paths[action.payload.id] = action.payload;
+    },
+    addPathsFromNames: (state, action: PayloadAction<{names: string[]}>) => {
+      const {names} = action.payload;
+
+      const newPaths = names.map(name => ({
+        id: crypto.randomUUID(),
+        name: name,
+        color: '#ff0000',
+        distance: 0,
+        checked: true,
+        main: [], // массив координат
+        variants: {}, // объект координат с ключами в виде id
+      }))
+      .reduce((acc: IPathsObject, path) => {
+        acc[path.id] = path;
+        return acc;
+      }, {} as IPathsObject);
+
+      state.paths = {...state.paths, ...newPaths};
+    },
+
+
+
+
+
+
+
+
 
     // Действия с вариантами
     createPathVariant: (state, action: PayloadAction<IPathVariant>) => {
@@ -54,9 +141,16 @@ export const pathSlice = createSlice({
         .variants[action.payload.id] = action.payload;
     },
 
+
+
+
+
+
+
+
+
     // Действия с точками
     addPoint: (state, action: PayloadAction<IPoint>) => {
-      // ебла вобла ну и хуйня конечно
       const point = action.payload;
       // добавляем новую точку в объект
       state.paths[point.pathId].variants[point.pathVariantId].path[point.id] = point;
@@ -105,6 +199,34 @@ export const pathSlice = createSlice({
     addManyPoint: (state, action: PayloadAction<IAddManyPointsProps>) => {
       state.paths[action.payload.pathId].variants[action.payload.pathVariantId].path = action.payload.points;
     },
+
+    // переписывает данные для всего маршрута
+    // на основе пути из бэка, который был обработан graphhopperом
+    addManyPointFromMathed: (state, action: PayloadAction<IAddManyPointsFromMatchedProps>) => {
+      const {pathId, pathVariantId, poinstArray} = action.payload;
+
+      // todo вынести логику в helper она повторяется
+      const path = poinstArray.map(x => ({
+        id: crypto.randomUUID(),
+        nextId: '',
+        prevId: '',
+        pathId: pathId,
+        pathVariantId: pathVariantId,
+        lat: x[0],
+        lng: x[1],
+      } as IPoint)).reduce((acc: IPathVariantPointsObject, point, index, arr) => {
+        if (index > 0) {
+          point.prevId = arr[index - 1].id;
+        }
+        if (index < arr.length - 1) {
+          point.nextId = arr[index + 1].id;
+        }
+        return {...acc, [point.id]: point};
+      }, {} as IPathVariantPointsObject);
+
+      state.paths[pathId].variants[pathVariantId].path = path;
+    },
+
     editPoint: (state, action: PayloadAction<IPoint>) => {
      state.paths[action.payload.pathId].variants[action.payload.pathVariantId].path[action.payload.id] = action.payload;
     },
@@ -127,6 +249,8 @@ export const {
   addPath, 
   deletePath, 
   editPath, 
+  addPathFromImport,
+  addPathsFromNames,
 
   createPathVariant, 
   deletePathVariant, 
@@ -135,6 +259,7 @@ export const {
   addPoint, 
   addPointBetween,
   addManyPoint,
+  addManyPointFromMathed,
   editPoint, 
   deletePoint 
 } = pathSlice.actions

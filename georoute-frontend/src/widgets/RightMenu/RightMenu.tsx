@@ -5,11 +5,11 @@ import type { RootState } from "../../providers/store";
 import { useEffect, useMemo, useState } from "react";
 import { editPath } from "../../providers/redux-test/path-reducer";
 import PathVariant from "../../components/PathVariant/PathVariant";
-// import { createPathVariant2 } from "../../providers/redux-test/path-reducer";
-// import { createPathVariant } from "../../providers/redux-test/current-path-reducer";
 import { createPathVariant, editPathVariant } from "../../providers/paths/path-reducer";
 import { useDebouncedCallback } from "use-debounce";
 import AddIcon from '@mui/icons-material/Add';
+import MatchCurrentPathButton from "../../components/MatchCurrentPathButton/MatchCurrentPathButton";
+import SavePathButton from "../../components/SavePathButton/SavePathButton";
 
 
 function RightMenu() {
@@ -23,11 +23,6 @@ function RightMenu() {
   const [color, setColor] = useState(path?.color || '');
   const [variantName, setVariantName] = useState(path?.variants[currentPathVariantId]?.name || '');
   const [variantColor, setVariantColor] = useState(path?.variants[currentPathVariantId]?.color || '');
-
-  // const onSavePath = () => {
-  //   dispatch(editPath({...path!, name, color}));
-  //   dispatch(editPathVariant({...path?.variants[currentPathVariantId], name: variantName, color: variantColor}));
-  // }
 
   const debounced = useDebouncedCallback(() => {
       dispatch(editPath({...path!, name, color}));
@@ -85,7 +80,7 @@ function RightMenu() {
           <PathVariant key={variant.id} pathVariant={variant}/>
         )}
       </div>
-      {/* попробовать найти библиотеку для выбора цвета */}
+      {/* todo попробовать найти библиотеку для выбора цвета */}
       <TextField 
         label="Название варианта"
         variant='outlined'
@@ -110,10 +105,10 @@ function RightMenu() {
         <div className={styles['path-data__text']}><p>По ЖД:</p> <p>0.2 km</p></div> */}
       </div>
       <Button startIcon={<AddIcon/>} onClick={onAddPathVariant}>Добавить вариант</Button>
-      {/* <div className={styles.button}>
-        <Button variant="contained" onClick={onSavePath}>Сохранить маршрут</Button>
-      </div> */}
-      
+      <div className={styles.button}>
+        <MatchCurrentPathButton/>
+        <SavePathButton/>
+      </div>
     </div>
   )
 }

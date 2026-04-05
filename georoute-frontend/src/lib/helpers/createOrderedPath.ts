@@ -1,5 +1,9 @@
 import type { IPathVariantPointsObject, IPoint } from "../../services/types/Path";
 
+// создает маршрут из последовательно идущих точек 
+// на основе prevId и nextId в виде связного списка
+// todo переписать с использованием new Map() 
+// так будет лучше, но пока как есть
 const createOrderedPath = (pointsObject: IPathVariantPointsObject): IPoint[] => {
   const pointsArr = Object.values(pointsObject)
   if (pointsArr.length == 0) {
