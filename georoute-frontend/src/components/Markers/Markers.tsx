@@ -1,16 +1,20 @@
 import { Icon, type LeafletMouseEvent } from "leaflet";
 import { Marker } from "react-leaflet";
 import type { IPathVariantPointsObject, IPoint } from "../../services/types/Path";
+import plus from '../../assets/icons/plus.svg'
+import pointMove from '../../assets/icons/point_move.svg'
+
 
 const customIcon = new Icon({
-  iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Yandex_Maps_icon.svg/1280px-Yandex_Maps_icon.svg.png',
-  iconSize: [40, 40],
-  iconAnchor: [20, 40],
+  // iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Yandex_Maps_icon.svg/1280px-Yandex_Maps_icon.svg.png',
+  iconUrl: pointMove,
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
 })
 const customIconAnother = new Icon({
-  iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Yandex_Maps_icon.svg/1280px-Yandex_Maps_icon.svg.png',
-  iconSize: [24, 24],
-  iconAnchor: [12, 24],
+  iconUrl: plus,
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
 })
 
 interface IMarkersProps {

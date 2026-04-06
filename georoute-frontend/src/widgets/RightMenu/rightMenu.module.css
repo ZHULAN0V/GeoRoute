@@ -54,3 +54,11 @@
   justify-content: flex-end;
   gap: 12px;
 }
+
+.inputsWithColor {
+  display: flex;
+  gap: 0px;
+  align-items: flex-start;
+  height: 36px;
+  gap: 8px;
+}

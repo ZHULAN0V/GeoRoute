@@ -10,6 +10,7 @@ import { useDebouncedCallback } from "use-debounce";
 import AddIcon from '@mui/icons-material/Add';
 import MatchCurrentPathButton from "../../components/MatchCurrentPathButton/MatchCurrentPathButton";
 import SavePathButton from "../../components/SavePathButton/SavePathButton";
+import ColorInput from "../../components/ColorInput/ColorInput";
 
 
 function RightMenu() {
@@ -57,46 +58,50 @@ function RightMenu() {
   return (
     <div className={styles['right-menu']}>
       <p>Меню маршрута</p>
-      <TextField 
-        label="Название маршрута"
-        variant='outlined'
-        size='small'
-        sx={{backgroundColor: '#ffffff', borderRadius: '4px'}}
-        value={name}
-        onChange={(e) => {setName(e.target.value); debounced()}}
-        // onChange={debounced}
-      />
-      <TextField 
+      <div className={styles.inputsWithColor}>
+        <TextField 
+          label="Название маршрута"
+          variant='outlined'
+          size='small'
+          sx={{backgroundColor: '#ffffff', borderRadius: '4px'}}
+          value={name}
+          onChange={(e) => {setName(e.target.value); debounced()}}
+          // onChange={debounced}
+        />
+        <ColorInput options={{
+          value: color,
+          onChange: (e) => {setColor(e.target.value); debounced()}
+        }}/>
+      </div>
+      
+      {/* <TextField 
         label="Цвет маршрута"
         variant='outlined'
         size='small'
         sx={{backgroundColor: '#ffffff', borderRadius: '4px'}}
         value={color}
         onChange={(e) => {setColor(e.target.value); debounced()}}
-      />
+      /> */}
       <p>Варианты маршрута</p>
       <div className={styles['list']}>
         {path && Object.values(pathObject[path.id]?.variants).map((variant) => 
           <PathVariant key={variant.id} pathVariant={variant}/>
         )}
       </div>
-      {/* todo попробовать найти библиотеку для выбора цвета */}
-      <TextField 
-        label="Название варианта"
-        variant='outlined'
-        size='small'
-        sx={{backgroundColor: '#ffffff', borderRadius: '4px'}}
-        value={variantName}
-        onChange={(e) => {setVariantName(e.target.value); debounced()}}
-      />
-      <TextField 
-        label="Цвет варианта"
-        variant='outlined'
-        size='small'
-        sx={{backgroundColor: '#ffffff', borderRadius: '4px'}}
-        value={variantColor}
-        onChange={(e) => {setVariantColor(e.target.value); debounced()}}
-      />
+      <div className={styles.inputsWithColor}>
+        <TextField 
+          label="Название варианта"
+          variant='outlined'
+          size='small'
+          sx={{backgroundColor: '#ffffff', borderRadius: '4px'}}
+          value={variantName}
+          onChange={(e) => {setVariantName(e.target.value); debounced()}}
+        />
+        <ColorInput options={{
+          value: variantColor,
+          onChange: (e) => {setVariantColor(e.target.value); debounced()}
+        }}/>
+      </div>
       <div className={styles['path-data']}>
         <div className={styles['path-data__text']}><p>Протяженность:</p> <p>12.7 km</p></div>
         {/* <div className={styles['path-data__text']}><p>По тратуару:</p> <p>10 km</p></div>
