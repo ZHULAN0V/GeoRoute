@@ -3,7 +3,7 @@ import styles from "./rightMenu.module.css"
 import { TextField, Button } from "@mui/material";
 import type { RootState } from "../../providers/store";
 import { useEffect, useMemo, useState } from "react";
-import { editPath } from "../../providers/redux-test/path-reducer";
+import { editPath } from "../../providers/paths/path-reducer";
 import PathVariant from "../../components/PathVariant/PathVariant";
 import { createPathVariant, editPathVariant } from "../../providers/paths/path-reducer";
 import { useDebouncedCallback } from "use-debounce";

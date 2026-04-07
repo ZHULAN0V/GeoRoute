@@ -1,6 +1,7 @@
 import axios from "axios";
 
 // todo добавить тип возвращаемого значения
+// нужно его взять из документации graphHopper
 const getMatchedPath = async (gpxData: string) => {
   try {
     const response = await axios.post(

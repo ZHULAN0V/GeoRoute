@@ -3,8 +3,8 @@ import { Button } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../../providers/store';
 import { addManyPointFromMathed } from '../../providers/paths/path-reducer';
-import createXmlString from '../../lib/helpers/downloadGPX';
 import { usePostFile } from '../../hooks/usePostFile';
+import createGPXStringFromPath from '../../lib/helpers/createGPXStringFromPath';
 
 
 const SavePathButton = () => {
@@ -24,13 +24,12 @@ const SavePathButton = () => {
     }));
   };
   
-  const { mutate: matchRoute, isPending} = usePostFile({ onSuccess });
+  const { mutate: postFile, isPending} = usePostFile({ onSuccess });
 
   const handleClick = () => {
-    const latlngArray = Object.values(pathObject[pathId].variants[pathVariantId].path)
-      .map(x => [x.lat, x.lng] as [number, number]);
-    const gpxData = createXmlString([latlngArray]);
-    matchRoute({gpxData, fileName: pathObject[pathId].name});
+    const gpxData = createGPXStringFromPath(pathObject[pathId])
+    console.log(gpxData);
+    postFile({gpxData, fileName: pathObject[pathId].name});
   };
 
   return (

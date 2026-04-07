@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import type { IPath, IPathVariant, IPathVariantPointsObject, IPoint } from '../../services/types/Path'
+import type { IMarker, IPath, IPathVariant, IPathVariantPointsObject, IPoint } from '../../services/types/Path'
 import { initialStateRedux } from '../../lib/helpers/initialState'
 import createOrderedPath from '../../lib/helpers/createOrderedPath';
 
@@ -85,6 +85,7 @@ export const pathSlice = createSlice({
         distance: 0,
         checked: true,
         main: [],
+        markers: {},
         variants: {
           [variantId]: {
             id: variantId,
@@ -109,6 +110,7 @@ export const pathSlice = createSlice({
         distance: 0,
         checked: true,
         main: [], // массив координат
+        markers: {},
         variants: {}, // объект координат с ключами в виде id
       }))
       .reduce((acc: IPathsObject, path) => {
@@ -140,6 +142,12 @@ export const pathSlice = createSlice({
       state.paths[action.payload.pathId]
         .variants[action.payload.id] = action.payload;
     },
+
+
+
+
+
+
 
 
 
@@ -195,10 +203,13 @@ export const pathSlice = createSlice({
       }, {} as IPathVariantPointsObject);
 
     },
+
+    
     // полностью обновляем путь
     addManyPoint: (state, action: PayloadAction<IAddManyPointsProps>) => {
       state.paths[action.payload.pathId].variants[action.payload.pathVariantId].path = action.payload.points;
     },
+
 
     // переписывает данные для всего маршрута
     // на основе пути из бэка, который был обработан graphhopperом
@@ -230,6 +241,7 @@ export const pathSlice = createSlice({
     editPoint: (state, action: PayloadAction<IPoint>) => {
      state.paths[action.payload.pathId].variants[action.payload.pathVariantId].path[action.payload.id] = action.payload;
     },
+
     deletePoint: (state, action: PayloadAction<IPoint>) => {
       const point = action.payload;
       delete state.paths[point.pathId].variants[point.pathVariantId].path[point.id];
@@ -241,6 +253,27 @@ export const pathSlice = createSlice({
       if (state.paths[point.pathId].variants[point.pathVariantId].path[point.nextId] != undefined) {
         state.paths[point.pathId].variants[point.pathVariantId].path[point.nextId].prevId = point.prevId;
       }
+    },
+
+
+
+
+
+
+
+
+
+    addMarker: (state, action: PayloadAction<IMarker>) => {
+      const marker = action.payload;
+      state.paths[marker.pathId].markers[marker.id] = marker;
+    },
+    editMarker: (state, action: PayloadAction<IMarker>) => {
+      const marker = action.payload;
+      state.paths[marker.pathId].markers[marker.id] = marker;
+    },
+    deleteMarker: (state, action: PayloadAction<IMarker>) => {
+      const marker = action.payload;
+      delete state.paths[marker.pathId].markers[marker.id];
     },
   },
 })
@@ -261,7 +294,11 @@ export const {
   addManyPoint,
   addManyPointFromMathed,
   editPoint, 
-  deletePoint 
+  deletePoint,
+
+  addMarker,
+  editMarker,
+  deleteMarker,
 } = pathSlice.actions
 
 export default pathSlice.reducer

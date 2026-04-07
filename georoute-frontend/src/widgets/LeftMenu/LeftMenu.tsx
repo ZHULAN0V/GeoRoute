@@ -9,14 +9,14 @@ import { useCallback, useEffect } from "react";
 import { addPath } from "../../providers/paths/path-reducer";
 import type { IPath } from "../../services/types/Path";
 import GpxUploadButton from "../../components/ImportGpxButton/ImportGpxButton";
-import getArrayOfPoints from "../../lib/helpers/getArrayOfPoints";
-import createXmlString from "../../lib/helpers/downloadGPX";
 import { useGetFileNames } from "../../hooks/useGetFileNames";
-import { loadPathsFromNames } from "../../lib/helpers/updatePathsAsync";
+import { loadPathsFromNamesWithVariantsAndMarkers } from "../../lib/helpers/uploadPathsWithVariantsAsync";
+import createGPXStringFromPath from "../../lib/helpers/createGPXStringFromPath";
 
 
 function LeftMenu() {
   const pathObject = useSelector((state: RootState) => state.pathObject.paths)
+  const pathId = useSelector((state: RootState) => state.currentPathId.currentPathId)
   const dispatch = useDispatch();
 
   const {data: fileNamesData, isSuccess} = useGetFileNames();
@@ -31,6 +31,7 @@ function LeftMenu() {
       distance: 0,
       checked: true,
       main: [],
+      markers: {},
       variants: {
         [variantId]: {
           id: variantId,
@@ -46,20 +47,21 @@ function LeftMenu() {
   ))}, [dispatch])
 
   // todo можно вынести в отдельный компонент с кнопкой
-  const handleDownload = () => {
-    const pathsArray = getArrayOfPoints(pathObject);
-    const pdfUrl = 'data:text/json;charset=utf-8,' + createXmlString(pathsArray);
+  const handleFullDownload = () => {
+    const gpxString = createGPXStringFromPath(pathObject[pathId]);
+    const pdfUrl = 'data:text/json;charset=utf-8,' + gpxString;
     const link = document.createElement("a");
     link.href = pdfUrl;
     link.download = "paths.gpx";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  };
+  }
 
   useEffect(() => {
     if (isSuccess) {
-      loadPathsFromNames(fileNamesData, dispatch);
+      console.log(fileNamesData);
+      loadPathsFromNamesWithVariantsAndMarkers(fileNamesData, dispatch);
     }
   }, [dispatch, fileNamesData, isSuccess]);
   
@@ -90,7 +92,7 @@ function LeftMenu() {
 
       <div className={styles['buttons']}>
         <div className={styles['up-buttons']}>
-          <Button onClick={handleDownload} startIcon={<DownloadIcon/>} variant={'contained'}>GPX</Button>
+          <Button onClick={handleFullDownload} startIcon={<DownloadIcon/>} variant={'contained'}>GPX</Button>
           <Button startIcon={<DownloadIcon/>} variant={'outlined'}>KML</Button>
         </div>
         <GpxUploadButton/>

@@ -22,6 +22,7 @@ interface IMarkersProps {
   handleDragMarker: (point: IPoint) => (e: LeafletMouseEvent) => void,
   handleMarkerDelete: (point: IPoint) => (e: LeafletMouseEvent) => void,
   handleClickMiddleMarker: (prevPoint: IPoint, nextPoint: IPoint) => (e: LeafletMouseEvent) => void,
+  handleMarkerClick: (point: IPoint) => (e: LeafletMouseEvent) => void,
 }
 
 const Markers = (props: IMarkersProps) => {
@@ -30,6 +31,7 @@ const Markers = (props: IMarkersProps) => {
     handleDragMarker,
     handleMarkerDelete,
     handleClickMiddleMarker,
+    handleMarkerClick
   } = props;
 
   return <>
@@ -43,9 +45,12 @@ const Markers = (props: IMarkersProps) => {
         eventHandlers={{
           // @ts-expect-error неправильно определен тип в библиотеке
           drag: handleDragMarker(point),
-          // dragend: handleDragMarker(point),
+          // чтобы оптимизировать маршрут можно использовать dragend
+          // но тогда не будет плавности перемещения
+          // dragend: handleDragMarker(point), 
           contextmenu: handleMarkerDelete(point),
           // dragstart: handleDragMarker(m)
+          click: handleMarkerClick(point),
         }}
       />
     )}

@@ -6,8 +6,8 @@ import RedoIcon from '@mui/icons-material/Redo';
 import TurnSharpRightIcon from '@mui/icons-material/TurnSharpRight';
 import styles from "./bottomMenu.module.css"
 import { useDispatch, useSelector } from "react-redux";
-import { selectButton } from "../../providers/redux-test/active-button-reducer";
-import type {TButtonType} from "../../providers/redux-test/active-button-reducer";
+import { selectButton } from "../../providers/paths/active-button-reducer";
+import type {TButtonType} from "../../providers/paths/active-button-reducer";
 import type { RootState } from "../../providers/store";
 
 function BottomMenu() {

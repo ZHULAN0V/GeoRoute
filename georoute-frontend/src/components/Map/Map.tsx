@@ -6,17 +6,18 @@ import "leaflet-draw/dist/leaflet.draw.css";
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../../providers/store';
-import { selectButton } from '../../providers/redux-test/active-button-reducer';
-import { addPoint, editPoint, addManyPoint, deletePoint, addPointBetween } from '../../providers/paths/path-reducer';
+import { selectButton } from '../../providers/paths/active-button-reducer';
+import { addPoint, editPoint, addManyPoint, deletePoint, addPointBetween, addMarker, editMarker } from '../../providers/paths/path-reducer';
 
 import { chosePointId } from '../../providers/paths/current-point-id-reducer';
-import type { IPathVariantPointsObject, IPoint } from '../../services/types/Path';
+import type { IMarker, IPathVariantPointsObject, IPoint } from '../../services/types/Path';
 import { useDebouncedCallback } from 'use-debounce';
 
 import MapHandlerComponent from '../MapHandlerComponent/MapHandlerComponent';
 import CurrentLine from '../CurrentLine/CurrentLine';
 import Markers from '../Markers/Markers';
 import Lines from '../Lines/Lines';
+import NodeMarkers from '../NodeMarkers/NodeMarkers';
 
 const tileLayerUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const tileLayerAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
@@ -42,6 +43,14 @@ function Map() {
     dispatch(editPoint({...point, lat: e.latlng.lat, lng: e.latlng.lng}))
   }, 300 );
 
+  const debouncedDragMarkerNode = useDebouncedCallback((marker: IMarker, e: LeafletMouseEvent) => {
+    dispatch(editMarker({...marker, lat: e.latlng.lat, lng: e.latlng.lng}))
+  }, 300 );
+
+  // todo обернуть все handlers в useCallback для оптимизации
+  // перерезаписывает все при любых обновлениях
+
+  // handlers для карты
   const handleMapClick = (e: LeafletMouseEvent) => {
     const { lat, lng } = e.latlng;
     if (currentButton == 'edit') {
@@ -77,6 +86,8 @@ function Map() {
     dispatch(selectButton('edit'))
   }
 
+
+  // handlers для маркера
   const handleDragMarker = (point: IPoint) => {
     return (e: LeafletMouseEvent) => {
       debounced(point, e);
@@ -98,6 +109,41 @@ function Map() {
   const handleMarkerDelete = (point: IPoint) => {
     return () => {
       dispatch(deletePoint(point))
+    }
+  }
+
+  const handleMarkerClick = (point: IPoint) => {
+    const newMarker: IMarker = {
+      id: crypto.randomUUID(),
+      pathId: point.pathId,
+      name: `marker ${point.id.slice(0, 2)}`,
+      pointsIdsWithVariant: [],
+      lat: point.lat,
+      lng: point.lng
+    }
+    // console.log(newMarker);
+    return () => {
+      console.log(newMarker);
+      dispatch(addMarker(newMarker))
+    }
+  }
+
+
+  // handlers для маркеров узловых точек
+  const handleMarkerNodeClick = (marker: IMarker) => {
+    return () => {
+       if (currentButton == 'edit') {
+        console.log(marker);
+      }
+      // dispatch(addMarker(newMarker))
+    }
+  }
+
+  const handleDragMarkerNode = (marker: IMarker) => {
+    return (e: LeafletMouseEvent) => {
+      debouncedDragMarkerNode(marker, e);
+      // dispatch(editPoint({...point, lat: e.latlng.lat, lng: e.latlng.lng}))
+      // setVariantState({...variantState, [point.id]: {...point, lat: e.latlng.lat, lng: e.latlng.lng}})
     }
   }
 
@@ -138,8 +184,14 @@ function Map() {
           handleDragMarker={handleDragMarker}
           handleMarkerDelete={handleMarkerDelete}
           handleClickMiddleMarker={handleClickMiddleMarker} 
+          handleMarkerClick={handleMarkerClick}
           variantState={variantState} 
         />
+
+        <NodeMarkers 
+          handleMarkerNodeClick={handleMarkerNodeClick}
+          handleDragMarkerNode={handleDragMarkerNode}
+          />
       </MapContainer>
     </div>      
   )
