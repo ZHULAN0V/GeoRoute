@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../../providers/store';
 import { selectButton } from '../../providers/paths/active-button-reducer';
-import { addPoint, editPoint, addManyPoint, deletePoint, addPointBetween, addMarker, editMarker } from '../../providers/paths/path-reducer';
+import { addPoint, editPoint, addManyPoint, deletePoint, addPointBetween, addMarker, editMarker, deleteMarker } from '../../providers/paths/path-reducer';
 
 import { chosePointId } from '../../providers/paths/current-point-id-reducer';
 import type { IMarker, IPathVariantPointsObject, IPoint } from '../../services/types/Path';
@@ -117,7 +117,7 @@ function Map() {
       id: crypto.randomUUID(),
       pathId: point.pathId,
       name: `marker ${point.id.slice(0, 2)}`,
-      pointsIdsWithVariant: [],
+      points: [point],
       lat: point.lat,
       lng: point.lng
     }
@@ -129,11 +129,28 @@ function Map() {
   }
 
 
+
+
+
   // handlers для маркеров узловых точек
   const handleMarkerNodeClick = (marker: IMarker) => {
     return () => {
+      console.log(marker);
        if (currentButton == 'edit') {
-        console.log(marker);
+        const newPointId = crypto.randomUUID();
+        const newPoint = {
+          id: newPointId,
+          nextId: '',
+          prevId: Object.values(variantState || {}).length > 0 ? currentPointId : '',
+          pathId: currentPathId,
+          pathVariantId: currentPathVariantId,
+          lat: marker.lat,
+          lng: marker.lng,
+        }
+        setVariantState({...variantState, [newPointId]: newPoint});
+        dispatch(addPoint(newPoint));
+        dispatch(chosePointId(newPointId));
+        dispatch(editMarker({...marker, points: [...marker.points, newPoint]}))
       }
       // dispatch(addMarker(newMarker))
     }
@@ -142,10 +159,21 @@ function Map() {
   const handleDragMarkerNode = (marker: IMarker) => {
     return (e: LeafletMouseEvent) => {
       debouncedDragMarkerNode(marker, e);
+      // debounced(marker.points[0], e);
+      // setVariantState({...variantState, [marker.points[0].id]: {...marker.points[0], lat: e.latlng.lat, lng: e.latlng.lng}})
       // dispatch(editPoint({...point, lat: e.latlng.lat, lng: e.latlng.lng}))
       // setVariantState({...variantState, [point.id]: {...point, lat: e.latlng.lat, lng: e.latlng.lng}})
     }
   }
+
+  const handleMarkerNodeDelete = (marker: IMarker) => {
+    return () => {
+      dispatch(deleteMarker(marker))
+    }
+  }
+
+
+
 
   useEffect(() => {
     if (variant?.path) {
@@ -158,6 +186,8 @@ function Map() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setVariantState(variant?.path);
   }, [currentPathId, currentPathVariantId, variant?.path])
+
+
 
   return (
     <div className={styles.map}>
@@ -191,6 +221,7 @@ function Map() {
         <NodeMarkers 
           handleMarkerNodeClick={handleMarkerNodeClick}
           handleDragMarkerNode={handleDragMarkerNode}
+          handleDeleteMarkerNode={handleMarkerNodeDelete}
           />
       </MapContainer>
     </div>      

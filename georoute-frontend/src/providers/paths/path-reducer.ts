@@ -262,7 +262,7 @@ export const pathSlice = createSlice({
 
 
 
-
+    // действия с маркерами
     addMarker: (state, action: PayloadAction<IMarker>) => {
       const marker = action.payload;
       state.paths[marker.pathId].markers[marker.id] = marker;
@@ -270,6 +270,9 @@ export const pathSlice = createSlice({
     editMarker: (state, action: PayloadAction<IMarker>) => {
       const marker = action.payload;
       state.paths[marker.pathId].markers[marker.id] = marker;
+      for (const point of marker.points) {
+        state.paths[marker.pathId].variants[point.pathVariantId].path[point.id] = {...point, lat: marker.lat, lng: marker.lng};
+      }
     },
     deleteMarker: (state, action: PayloadAction<IMarker>) => {
       const marker = action.payload;

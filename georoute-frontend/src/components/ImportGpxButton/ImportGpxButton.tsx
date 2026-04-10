@@ -69,7 +69,7 @@ const GpxUploadButton = () => {
         startIcon={<FileUploadIcon/>} 
         variant={'contained'}
       >
-        Upload GPX File
+        Загрузить GPX
       </Button>
 
       {fileName && <div className={styles.name}> <p>{fileName}</p> </div> }

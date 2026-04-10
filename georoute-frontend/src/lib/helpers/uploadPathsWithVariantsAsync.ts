@@ -29,7 +29,7 @@ export const loadPathsFromNamesWithVariantsAndMarkers = async (
           lat: marker[0],
           lng: marker[1],
           name: `Маркер ${index + 1}`,
-          pointsIdsWithVariant: []
+          points: []
         };
         return acc;
       }, {} as {[index: string]: IMarker});

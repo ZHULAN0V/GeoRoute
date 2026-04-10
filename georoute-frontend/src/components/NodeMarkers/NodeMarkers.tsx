@@ -15,12 +15,14 @@ const customIcon = new Icon({
 interface INodeMarkersProps {
   handleMarkerNodeClick: (point: IMarker) => (e: LeafletMouseEvent) => void,
   handleDragMarkerNode: (marker: IMarker) => (e: LeafletMouseEvent) => void,
+  handleDeleteMarkerNode: (marker: IMarker) => (e: LeafletMouseEvent) => void,
 }
 
 const NodeMarkers = (props: INodeMarkersProps) => {
   const {
     handleMarkerNodeClick, 
-    handleDragMarkerNode
+    handleDragMarkerNode,
+    handleDeleteMarkerNode
   } = props;
 
   const pathObject = useSelector((state: RootState) => state.pathObject);
@@ -40,7 +42,7 @@ const NodeMarkers = (props: INodeMarkersProps) => {
           eventHandlers={{
             // @ts-expect-error неправильно определен тип в библиотеке
             drag: handleDragMarkerNode(marker),
-            contextmenu: () => {},
+            contextmenu: handleDeleteMarkerNode(marker),
             click: handleMarkerNodeClick(marker),
           }}
         />

@@ -10,7 +10,8 @@ import { addPath } from "../../providers/paths/path-reducer";
 import type { IPath } from "../../services/types/Path";
 import GpxUploadButton from "../../components/ImportGpxButton/ImportGpxButton";
 import { useGetFileNames } from "../../hooks/useGetFileNames";
-import { loadPathsFromNamesWithVariantsAndMarkers } from "../../lib/helpers/uploadPathsWithVariantsAsync";
+// import { loadPathsFromNamesWithVariantsAndMarkers } from "../../lib/helpers/uploadPathsWithVariantsAsync";
+import { loadPathJSON } from "../../lib/helpers/uploadPathJSON";
 import createGPXStringFromPath from "../../lib/helpers/createGPXStringFromPath";
 
 
@@ -26,7 +27,7 @@ function LeftMenu() {
     const variantId = crypto.randomUUID();
     dispatch(addPath({
       id: id,
-      name: `path ${id.slice(0, 2)}.gpx`,
+      name: `Маршрут ${id.slice(0, 2)}`,
       color: '#ff6a6a',
       distance: 0,
       checked: true,
@@ -61,7 +62,7 @@ function LeftMenu() {
   useEffect(() => {
     if (isSuccess) {
       console.log(fileNamesData);
-      loadPathsFromNamesWithVariantsAndMarkers(fileNamesData, dispatch);
+      loadPathJSON(fileNamesData, dispatch);
     }
   }, [dispatch, fileNamesData, isSuccess]);
   

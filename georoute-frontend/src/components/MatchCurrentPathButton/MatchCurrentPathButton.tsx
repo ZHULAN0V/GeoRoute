@@ -5,7 +5,6 @@ import { addManyPointFromMathed } from '../../providers/paths/path-reducer';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
 import { useMatchRouteMutation } from '../../hooks/usePostMatchMap';
 import createXmlString from '../../lib/helpers/downloadGPX';
-// import createGPXStringFromPath from '../../lib/helpers/createGPXStringFromPath';
 
 
 const MatchCurrentPathButton = () => {
