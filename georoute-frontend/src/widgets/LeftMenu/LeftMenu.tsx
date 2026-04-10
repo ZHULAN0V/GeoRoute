@@ -61,7 +61,6 @@ function LeftMenu() {
 
   useEffect(() => {
     if (isSuccess) {
-      console.log(fileNamesData);
       loadPathJSON(fileNamesData, dispatch);
     }
   }, [dispatch, fileNamesData, isSuccess]);

@@ -15,12 +15,8 @@ function parseGPXIntoMarkersJSON(gpxString: string): IMarker[] {
   const markers: IMarker[] = [];
 
   waypoints.forEach(waypoint => {
-    try {
-      const pasedMarker = JSON.parse(waypoint.querySelector('extensions')?.textContent || '') as IMarker;
-      markers.push(pasedMarker);
-    } catch (error) {
-      console.log(`error at parsing: ${error}`)
-    }
+    const pasedMarker = JSON.parse(waypoint.querySelector('extensions')?.textContent || '') as IMarker;
+    markers.push(pasedMarker);
   });
 
   return markers;

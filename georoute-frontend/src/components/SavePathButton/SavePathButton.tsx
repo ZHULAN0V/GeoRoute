@@ -28,7 +28,6 @@ const SavePathButton = () => {
 
   const handleClick = () => {
     const gpxData = createGPXStringFromPath(pathObject[pathId])
-    console.log(gpxData);
     postFile({gpxData, fileName: pathObject[pathId].name});
   };
 

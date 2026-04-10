@@ -16,13 +16,9 @@ export const loadPathJSON = async (
     const promises = names.map(async (name) => {
       const file = await getFileByName(name);
 
-      console.log(1);
       const variants = parseGpxIntoVariantsJSON(file);
-      console.log(2);
       const markers = parseGPXIntoMarkersJSON(file);
-      console.log(3);
       const path = parseGpxIntoPathJSON(file);
-      console.log(4);
 
       path.markers = markers.reduce((acc, marker) => 
         {acc[marker.id] = marker; return acc}, {} as {[index: string]: IMarker});

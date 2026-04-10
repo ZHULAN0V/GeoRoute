@@ -121,9 +121,7 @@ function Map() {
       lat: point.lat,
       lng: point.lng
     }
-    // console.log(newMarker);
     return () => {
-      console.log(newMarker);
       dispatch(addMarker(newMarker))
     }
   }
@@ -135,7 +133,6 @@ function Map() {
   // handlers для маркеров узловых точек
   const handleMarkerNodeClick = (marker: IMarker) => {
     return () => {
-      console.log(marker);
        if (currentButton == 'edit') {
         const newPointId = crypto.randomUUID();
         const newPoint = {

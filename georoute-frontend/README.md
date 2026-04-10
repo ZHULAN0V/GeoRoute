@@ -30,7 +30,7 @@ npm run dev
 # сборка проекта
 npm run build
 # запуск сбилженой версии
-npm run start
+npm run preview
 ```
 
 ## Ограничения

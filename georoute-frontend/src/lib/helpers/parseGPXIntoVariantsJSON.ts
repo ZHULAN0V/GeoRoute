@@ -22,8 +22,6 @@ function parseGpxIntoVariantsJSON(gpxString: string): IPathVariant[] {
 
   trackSegments.forEach(segment => {
     const variant = JSON.parse(segment.querySelector('trkseg > extensions')?.textContent || '') as IPathVariant;
-    console.log('variant: ', variant);
-    // Ищем точки трека (<trkpt>) внутри сегмента с учётом namespace
     const points = segment.querySelectorAll(`trkpt`);
 
     points.forEach(point => {
