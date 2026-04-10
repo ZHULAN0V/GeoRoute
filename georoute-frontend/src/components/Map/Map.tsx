@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../../providers/store';
 import { selectButton } from '../../providers/paths/active-button-reducer';
-import { addPoint, editPoint, addManyPoint, deletePoint, addPointBetween, addMarker, editMarker, deleteMarker } from '../../providers/paths/path-reducer';
+import { addPoint, editPoint, addManyPoint, deletePoint, addPointBetween, addMarker, editMarker, deleteMarker, editPathVariant } from '../../providers/paths/path-reducer';
 
 import { chosePointId } from '../../providers/paths/current-point-id-reducer';
 import type { IMarker, IPathVariantPointsObject, IPoint } from '../../services/types/Path';
@@ -18,6 +18,7 @@ import CurrentLine from '../CurrentLine/CurrentLine';
 import Markers from '../Markers/Markers';
 import Lines from '../Lines/Lines';
 import NodeMarkers from '../NodeMarkers/NodeMarkers';
+import { chooseStartMarkerId } from '../../providers/paths/path-segments-ids-reducer';
 
 const tileLayerUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const tileLayerAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
@@ -116,8 +117,9 @@ function Map() {
     const newMarker: IMarker = {
       id: crypto.randomUUID(),
       pathId: point.pathId,
-      name: `marker ${point.id.slice(0, 2)}`,
+      name: `КП ${point.id.slice(0, 2)}`,
       points: [point],
+      order: 0,
       lat: point.lat,
       lng: point.lng
     }
@@ -133,7 +135,7 @@ function Map() {
   // handlers для маркеров узловых точек
   const handleMarkerNodeClick = (marker: IMarker) => {
     return () => {
-       if (currentButton == 'edit') {
+      if (currentButton == 'edit') {
         const newPointId = crypto.randomUUID();
         const newPoint = {
           id: newPointId,
@@ -144,22 +146,27 @@ function Map() {
           lat: marker.lat,
           lng: marker.lng,
         }
+
+        const newCurrentVariant = paths[currentPathId].variants[currentPathVariantId]
+        if (Object.values(newCurrentVariant.path).length == 0) {
+          dispatch(editPathVariant({...newCurrentVariant, startMarkerId: marker.id}));
+        } else if (Object.values(newCurrentVariant.path).length > 0) {
+          dispatch(editPathVariant({...newCurrentVariant, endMarkerId: marker.id}));
+        } 
+
         setVariantState({...variantState, [newPointId]: newPoint});
         dispatch(addPoint(newPoint));
         dispatch(chosePointId(newPointId));
         dispatch(editMarker({...marker, points: [...marker.points, newPoint]}))
+      } else {
+        dispatch(chooseStartMarkerId(marker.id))
       }
-      // dispatch(addMarker(newMarker))
     }
   }
 
   const handleDragMarkerNode = (marker: IMarker) => {
     return (e: LeafletMouseEvent) => {
       debouncedDragMarkerNode(marker, e);
-      // debounced(marker.points[0], e);
-      // setVariantState({...variantState, [marker.points[0].id]: {...marker.points[0], lat: e.latlng.lat, lng: e.latlng.lng}})
-      // dispatch(editPoint({...point, lat: e.latlng.lat, lng: e.latlng.lng}))
-      // setVariantState({...variantState, [point.id]: {...point, lat: e.latlng.lat, lng: e.latlng.lng}})
     }
   }
 

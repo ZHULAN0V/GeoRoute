@@ -29,7 +29,8 @@ export const loadPathsFromNamesWithVariantsAndMarkers = async (
           lat: marker[0],
           lng: marker[1],
           name: `Маркер ${index + 1}`,
-          points: []
+          points: [],
+          order: 0,
         };
         return acc;
       }, {} as {[index: string]: IMarker});
@@ -58,7 +59,7 @@ export const loadPathsFromNamesWithVariantsAndMarkers = async (
           name: `Вариант ${index}` ,
           color: '#ff0000',
           distance: 0,
-          checked: false,
+          isVisible: true,
           path: pointsObject
         }
         return acc

@@ -19,7 +19,10 @@ export interface IPathVariant {
   name: string,
   color: string,
   distance: number,
-  checked: boolean,
+  startMarkerId?: string,
+  endMarkerId?: string,
+  isMain?: boolean,
+  isVisible: boolean,
   path: IPathVariantPointsObject, // объект координат с ключами в виде id
 }
 
@@ -39,6 +42,7 @@ export interface IMarker {
   name: string,
   pathId: string,
   points: IPoint[],
+  order: number,
   lat: number,
   lng: number,
 }

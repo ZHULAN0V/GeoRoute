@@ -11,24 +11,44 @@ import AddIcon from '@mui/icons-material/Add';
 import MatchCurrentPathButton from "../../components/MatchCurrentPathButton/MatchCurrentPathButton";
 import SavePathButton from "../../components/SavePathButton/SavePathButton";
 import ColorInput from "../../components/ColorInput/ColorInput";
+import SelectSegments from "../../components/SelectSegments/SelectSegments";
+
 
 
 function RightMenu() {
   const currentPathId = useSelector((state: RootState) => state.currentPathId.currentPathId);
   const currentPathVariantId = useSelector((state: RootState) => state.currentPathVariantId.currentPathVariantId);
   const pathObject = useSelector((state: RootState) => state.pathObject.paths);
+  const markerIds = useSelector((state: RootState) => state.markerIds);
   const path = useMemo(() => pathObject[currentPathId], [pathObject, currentPathId]);
   const dispatch = useDispatch();
 
   const [name, setName] = useState(path?.name || '');
   const [color, setColor] = useState(path?.color || '');
+  // const [markerName, setMarkerName] = useState(path?.markers[markerIds.startMarkerId].name || '');
   const [variantName, setVariantName] = useState(path?.variants[currentPathVariantId]?.name || '');
   const [variantColor, setVariantColor] = useState(path?.variants[currentPathVariantId]?.color || '');
 
+  const filteredVariants = useMemo(() => {
+    if (markerIds.startMarkerId != '' && markerIds.endMarkerId != '') {
+      return Object.values(pathObject[currentPathId]?.variants || {}).filter(x => x.startMarkerId == markerIds.startMarkerId && x.endMarkerId == markerIds.endMarkerId)
+    } else if (markerIds.startMarkerId != '' || markerIds.endMarkerId != ''){
+      return Object.values(pathObject[currentPathId]?.variants || {}).filter(x => x.startMarkerId == markerIds.startMarkerId || x.endMarkerId == markerIds.endMarkerId)
+    } else {
+      return Object.values(pathObject[currentPathId]?.variants || {});
+    }
+  }, [currentPathId, markerIds.startMarkerId, pathObject, markerIds.endMarkerId])
+
+  // console.log(filteredVariants);
+
   const debounced = useDebouncedCallback(() => {
-      dispatch(editPath({...path!, name, color}));
-      dispatch(editPathVariant({...path?.variants[currentPathVariantId], name: variantName, color: variantColor}));
-    }, 300 );
+    dispatch(editPath({...path!, name, color}));
+    dispatch(editPathVariant({...path?.variants[currentPathVariantId], name: variantName, color: variantColor}));
+  }, 300 );
+    
+  // const debouncedMarker = useDebouncedCallback(() => {
+  //   dispatch(editMarker({...path?.markers[markerIds.startMarkerId], name: markerName}));
+  // }, 300 );
 
   const onAddPathVariant = () => {
     const newItem = {
@@ -37,7 +57,7 @@ function RightMenu() {
       name: path?.name || '',
       color: path?.color || '#000000',
       distance: 0,
-      checked: false,
+      isVisible: false,
       path: {},
     };
     dispatch(createPathVariant(newItem));
@@ -73,18 +93,13 @@ function RightMenu() {
           onChange: (e) => {setColor(e.target.value); debounced()}
         }}/>
       </div>
+
+      <p>Выбор сегмента маршрута</p>
+      <SelectSegments/>
       
-      {/* <TextField 
-        label="Цвет маршрута"
-        variant='outlined'
-        size='small'
-        sx={{backgroundColor: '#ffffff', borderRadius: '4px'}}
-        value={color}
-        onChange={(e) => {setColor(e.target.value); debounced()}}
-      /> */}
       <p>Варианты маршрута</p>
       <div className={styles['list']}>
-        {path && Object.values(pathObject[path.id]?.variants).map((variant) => 
+        {path && filteredVariants.map((variant) => 
           <PathVariant key={variant.id} pathVariant={variant}/>
         )}
       </div>
@@ -102,12 +117,9 @@ function RightMenu() {
           onChange: (e) => {setVariantColor(e.target.value); debounced()}
         }}/>
       </div>
+
       <div className={styles['path-data']}>
         <div className={styles['path-data__text']}><p>Протяженность:</p> <p>12.7 km</p></div>
-        {/* <div className={styles['path-data__text']}><p>По тратуару:</p> <p>10 km</p></div>
-        <div className={styles['path-data__text']}><p>По тропам:</p> <p>2 km</p></div>
-        <div className={styles['path-data__text']}><p>По лесу:</p> <p>0.5 km</p></div>
-        <div className={styles['path-data__text']}><p>По ЖД:</p> <p>0.2 km</p></div> */}
       </div>
       <Button startIcon={<AddIcon/>} onClick={onAddPathVariant}>Добавить вариант</Button>
       <div className={styles.button}>

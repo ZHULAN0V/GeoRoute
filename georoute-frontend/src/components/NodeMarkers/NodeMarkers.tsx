@@ -2,12 +2,11 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../../providers/store";
 import { Icon, type LeafletMouseEvent } from "leaflet";
 import { useMemo } from "react";
-import { Marker } from "react-leaflet";
+import { Marker, Tooltip } from "react-leaflet";
 import type { IMarker } from "../../services/types/Path";
 
 const customIcon = new Icon({
   iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Yandex_Maps_icon.svg/1280px-Yandex_Maps_icon.svg.png',
-  // iconUrl: pointMove,
   iconSize: [32, 32],
   iconAnchor: [16, 32],
 })
@@ -45,7 +44,21 @@ const NodeMarkers = (props: INodeMarkersProps) => {
             contextmenu: handleDeleteMarkerNode(marker),
             click: handleMarkerNodeClick(marker),
           }}
-        />
+        >
+          <Tooltip
+            permanent
+            direction="top"
+            offset={[0, -30]}
+            className="marker-tooltip"
+          >
+            <div style={{
+              fontSize: '12px',
+              whiteSpace: 'nowrap'
+            }}>
+              {marker.name || 'Маркер'}
+            </div>
+          </Tooltip>
+        </Marker>
       )}
     </>
   );

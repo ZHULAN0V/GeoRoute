@@ -93,7 +93,7 @@ export const pathSlice = createSlice({
             name: 'Вариант 1',
             color: '#ff0000',
             distance: 0,
-            checked: true,
+            isVisible: true,
             path: path,
           }
         },

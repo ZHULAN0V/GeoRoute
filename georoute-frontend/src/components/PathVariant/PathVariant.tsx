@@ -1,13 +1,17 @@
 import styles from './pathVariant.module.css'
 import { IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+// import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import type { IPathVariant } from '../../services/types/Path';
 import type { RootState } from '../../providers/store';
 import { useDispatch, useSelector } from 'react-redux';
-import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
+// import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import { deletePathVariant, editPathVariant } from '../../providers/paths/path-reducer';
 import { setPathVariantId } from '../../providers/paths/current-path-variant-id-reducer';
+// import SwapVertIcon from '@mui/icons-material/SwapVert';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import CallMergeIcon from '@mui/icons-material/CallMerge';
 
 interface IPathVariantProps {
   pathVariant: IPathVariant
@@ -35,7 +39,7 @@ function PathVariant(props: IPathVariantProps) {
   
     const handleSetCheckedPath = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       e.stopPropagation();
-      dispatch(editPathVariant({...pathVariant, checked: !pathVariant.checked}));
+      dispatch(editPathVariant({...pathVariant, isVisible: !pathVariant.isVisible}));
     };
 
   return (
@@ -50,20 +54,15 @@ function PathVariant(props: IPathVariantProps) {
           <div className={styles['color-text']}>{pathVariant.color}</div>
         </div>
         <div className={styles['buttons']}>
-          <IconButton 
-            onClick={handleDelete}
-            sx={{width: 28, height: 28}}
-          >
-            <DeleteIcon
-              sx={{width: 20, height: 20, color: '#212121'}}
-            />
-          </IconButton>
-          <IconButton 
-            onClick={handleSetCheckedPath}
-            sx={{width: 28, height: 28}}
-          >
-            {pathVariant.checked && <RadioButtonCheckedIcon sx={{width: 20, height: 20, color: '#212121'}} />}
-            {!pathVariant.checked && <RadioButtonUncheckedIcon sx={{width: 20, height: 20, color: '#212121'}} />}
+          { !pathVariant.isMain &&<IconButton  onClick={() => {}} sx={{width: 28, height: 28}} >
+            <CallMergeIcon sx={{width: 20, height: 20, color: '#212121'}} />
+          </IconButton> }
+          { !pathVariant.isMain && <IconButton  onClick={handleDelete} sx={{width: 28, height: 28}}>
+            <DeleteIcon sx={{width: 20, height: 20, color: '#212121'}} />
+          </IconButton> }
+          <IconButton  onClick={handleSetCheckedPath} sx={{width: 28, height: 28}} >
+            {pathVariant.isVisible && <VisibilityIcon sx={{width: 20, height: 20, color: '#212121'}} />}
+            {!pathVariant.isVisible && <VisibilityOffIcon sx={{width: 20, height: 20, color: '#212121'}} />}
           </IconButton>
         </div>
       </div>

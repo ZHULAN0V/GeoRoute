@@ -12,12 +12,15 @@ import GpxUploadButton from "../../components/ImportGpxButton/ImportGpxButton";
 import { useGetFileNames } from "../../hooks/useGetFileNames";
 // import { loadPathsFromNamesWithVariantsAndMarkers } from "../../lib/helpers/uploadPathsWithVariantsAsync";
 import { loadPathJSON } from "../../lib/helpers/uploadPathJSON";
-import createGPXStringFromPath from "../../lib/helpers/createGPXStringFromPath";
+// import createGPXStringFromPath from "../../lib/helpers/createGPXStringFromPath";
+import createXmlString from "../../lib/helpers/downloadGPX";
+// import getArrayOfPoints from "../../lib/helpers/getArrayOfPoints";
 
 
 function LeftMenu() {
   const pathObject = useSelector((state: RootState) => state.pathObject.paths)
   const pathId = useSelector((state: RootState) => state.currentPathId.currentPathId)
+  const variantId = useSelector((state: RootState) => state.currentPathVariantId.currentPathVariantId)
   const dispatch = useDispatch();
 
   const {data: fileNamesData, isSuccess} = useGetFileNames();
@@ -37,10 +40,11 @@ function LeftMenu() {
         [variantId]: {
           id: variantId,
           pathId: id,
-          name: 'Вариант 1',
+          name: 'Основной',
+          isMain: true,
+          isVisible: true,
           color: '#ff6a6a',
           distance: 0,
-          checked: true,
           path: {},
         }
       },
@@ -49,7 +53,8 @@ function LeftMenu() {
 
   // todo можно вынести в отдельный компонент с кнопкой
   const handleFullDownload = () => {
-    const gpxString = createGPXStringFromPath(pathObject[pathId]);
+    const array = Object.values(pathObject[pathId].variants[variantId].path).map(x => [x.lat, x.lng] as [number, number]);
+    const gpxString = createXmlString([array]);
     const pdfUrl = 'data:text/json;charset=utf-8,' + gpxString;
     const link = document.createElement("a");
     link.href = pdfUrl;

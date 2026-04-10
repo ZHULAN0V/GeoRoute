@@ -32,7 +32,11 @@
   cursor: auto;
 }
 
-/* .right-block {} */
+.right-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
 
 .color {
   display: flex;

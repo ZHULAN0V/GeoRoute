@@ -8,7 +8,7 @@ export interface PathState {
 }
 
 const initialState: PathState = {
-  currentButton: 'edit',
+  currentButton: '',
 }
 
 export const currentButtonSlice = createSlice({
