@@ -13,7 +13,7 @@ const getTest = async () => {
 
   try {
     const response = await axios.post(
-      'http://localhost:8989/match',
+      '/api/routes/match',
       gpxData,
       {
         headers: {

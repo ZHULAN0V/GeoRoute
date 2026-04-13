@@ -5,7 +5,7 @@ import axios from "axios";
 const getMatchedPath = async (gpxData: string) => {
   try {
     const response = await axios.post(
-      'http://localhost:8989/match',
+      '/api/routes/match',
       gpxData,
       {
         headers: {
