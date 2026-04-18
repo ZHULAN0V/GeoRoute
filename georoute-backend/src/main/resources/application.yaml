@@ -8,8 +8,8 @@ spring:
       default: "1.0"
 
 minio:
-  url: "http://localhost:9000"
-  access-key: minioadmin
-  secret-key: minioadmin
+  url: "${MINIO_ENDPOINT:http://localhost:9000}"
+  access-key: "${MINIO_ACCESS_KEY:minioadmin}"
+  secret-key: "${MINIO_SECRET_KEY:minioadmin}"
   bucket:
     name: "routes"

@@ -1,4 +1,4 @@
-import styles from './Map.module.css'
+import styles from './map.module.css'
 import { MapContainer, TileLayer } from 'react-leaflet'
 import { type LatLngTuple, type LeafletMouseEvent } from 'leaflet'
 import 'leaflet/dist/leaflet.css'

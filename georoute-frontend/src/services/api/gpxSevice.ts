@@ -1,7 +1,6 @@
 import axios from "axios";
 
 const getFileNames = async (): Promise<string[]> => {
-  // const result = await axios.get("http://localhost:8080/api/v1/routes");
   const result = await axios.get("api/routes");
   return result.data;
 }
