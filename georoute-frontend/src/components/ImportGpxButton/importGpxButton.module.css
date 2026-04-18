@@ -1,0 +1,13 @@
+.block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  margin-top: 12px;
+}
+.error {
+  color: red;
+  margin-top: 8px;
+}

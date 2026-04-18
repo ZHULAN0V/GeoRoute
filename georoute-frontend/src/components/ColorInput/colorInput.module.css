@@ -1,0 +1,24 @@
+.colorInput {
+  -webkit-appearance: none; /* Убирает стили в Chrome/Safari/Edge */
+  -moz-appearance: none;    /* Убирает стили в Firefox */
+  appearance: none;         /* Стандартное свойство */
+  border: none;             /* Убирает границу */
+  min-width: 36px;              /* Задайте нужный размер */
+  min-height: 36px;
+  cursor: pointer;
+  background: none;         /* Убирает фон по умолчанию */
+  /* padding-top: 1px; */
+}
+
+/* Стилизация кнопки (для Webkit/Blink) */
+.colorInput::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.colorInput::-webkit-color-swatch {
+  /* border: 2px solid #ccc; Ваша граница */
+}
+
+/* Стилизация кнопки (для Firefox) */
+.colorInput::-moz-color-swatch {
+  /* border: 2px solid #ccc; */
+}

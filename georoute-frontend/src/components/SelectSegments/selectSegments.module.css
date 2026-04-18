@@ -1,0 +1,18 @@
+.inputFlex {
+  display: flex;
+  align-items: flex-start;
+  /* border: 1px solid #000; */
+  padding-top: 1px;
+}
+
+.select {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.select > .selectItem {
+  flex: 1 0 auto;
+  max-width: 96px;
+}

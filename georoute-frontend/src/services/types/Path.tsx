@@ -1,5 +1,6 @@
 export interface IPathVariantsObject {[index: string]: IPathVariant}
 export interface IPathVariantPointsObject {[index: string]: IPoint}
+export interface IPathMarkersObject {[index: string]: IMarker}
 
 export interface IPoint {
   id: string,
@@ -9,6 +10,7 @@ export interface IPoint {
   pathVariantId: string,
   lat: number,
   lng: number,
+  markerId?: string,
 }
 
 export interface IPathVariant {
@@ -17,7 +19,10 @@ export interface IPathVariant {
   name: string,
   color: string,
   distance: number,
-  checked: boolean,
+  startMarkerId?: string,
+  endMarkerId?: string,
+  isMain?: boolean,
+  isVisible: boolean,
   path: IPathVariantPointsObject, // объект координат с ключами в виде id
 }
 
@@ -27,9 +32,18 @@ export interface IPath {
   color: string,
   distance: number,
   checked: boolean,
-  main: [number, number][], // массив координат
-  // mainPathId: string
-  variants: IPathVariantsObject, // объект координат с ключами в виде id
+  main: [number, number][], // массив координат основной, но пока не используется вообще, можно даже и убрать
+  variants: IPathVariantsObject, // объект вариантов с ключами в виде id
+  markers: IPathMarkersObject // объект с маркерами с ключами в виде id
 }
 
+export interface IMarker {
+  id: string,
+  name: string,
+  pathId: string,
+  points: IPoint[],
+  order: number,
+  lat: number,
+  lng: number,
+}
 
