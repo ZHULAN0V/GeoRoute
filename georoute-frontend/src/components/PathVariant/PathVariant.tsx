@@ -12,6 +12,8 @@ import { setPathVariantId } from '../../providers/paths/current-path-variant-id-
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import CallMergeIcon from '@mui/icons-material/CallMerge';
+import calculateRouteDistance from '../../lib/helpers/calculateRouteDistance';
+import { useMemo } from 'react';
 
 interface IPathVariantProps {
   pathVariant: IPathVariant
@@ -19,9 +21,10 @@ interface IPathVariantProps {
 
 function PathVariant(props: IPathVariantProps) {
   const { pathVariant } = props;
-  // const pathObject = useSelector((state: RootState) => state.pathObject.paths)
+  const pathObject = useSelector((state: RootState) => state.pathObject.paths)
   const currentPathVariantId = useSelector((state: RootState) => state.currentPathVariantId.currentPathVariantId);
-
+  const points = useMemo(() => Object.values(pathObject[pathVariant.pathId].variants[pathVariant.id].path).map(x => [x.lat, x.lng] as [number, number]), 
+    [pathObject, pathVariant.id, pathVariant.pathId]);
   const dispatch = useDispatch();
 
   const handleDelete = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -46,7 +49,7 @@ function PathVariant(props: IPathVariantProps) {
     <div className={`${styles['path-item']} ${styles[currentPathVariantId == pathVariant.id ? 'active' : '']}`} onClick={handleChosePath}>
       <div className={styles['left-block']}>
         <p className={styles['title']}>{ pathVariant.name }</p>
-        <p className={styles['description']}>12.7 km</p>
+        <p className={styles['description']}>{calculateRouteDistance(points)} км</p>
       </div>
       <div className={styles['right-block']}>
         <div className={styles['color']}>

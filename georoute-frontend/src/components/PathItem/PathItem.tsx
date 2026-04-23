@@ -6,11 +6,12 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import type { IPath } from '../../services/types/Path';
 import { useDispatch, useSelector } from 'react-redux';
 import { deletePath, editPath } from '../../providers/paths/path-reducer';
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import type { RootState } from '../../providers/store';
 import { chosePathId, unchosePathId } from '../../providers/paths/current-path-id-reducer';
 import { setPathVariantId } from '../../providers/paths/current-path-variant-id-reducer';
 import { useDeleteFileByName } from '../../hooks/useDeleteFileByName';
+import calculateRouteDistance from '../../lib/helpers/calculateRouteDistance';
 
 interface IPathItemProps {
   path: IPath
@@ -18,8 +19,11 @@ interface IPathItemProps {
 
 function PathItem(props: IPathItemProps) {
   const { path } = props;
-
   const currentPathId = useSelector((state: RootState) => state.currentPathId.currentPathId)
+
+  const points = useMemo(() => Object.values(Object.values(path.variants)[0].path).map(x => [x.lat, x.lng] as [number, number]), 
+    [path.variants]);
+
   const dispatch = useDispatch();
 
   const {mutate: deleteFile, isPending} = useDeleteFileByName();
@@ -48,7 +52,7 @@ function PathItem(props: IPathItemProps) {
     <div className={`${styles['path-item']} ${styles[currentPathId == path.id ? 'active' : '']}`} onClick={handleChosePath}>
       <div className={styles['left-block']}>
         <p className={styles['title']}>{ path.name }</p>
-        <p className={styles['description']}>12.7 km</p>
+        <p className={styles['description']}>{calculateRouteDistance(points)} км</p>
       </div>
       <div className={styles['right-block']}>
         <div className={styles['color']}>
