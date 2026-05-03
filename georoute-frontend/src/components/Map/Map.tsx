@@ -113,9 +113,11 @@ function Map() {
     }
   }
 
-  const handleMarkerClick = (point: IPoint) => {
+  const handleMarkerClick = (inputPoint: IPoint) => {
+    const markerId = crypto.randomUUID();
+    const point = {...inputPoint, markerId}
     const newMarker: IMarker = {
-      id: crypto.randomUUID(),
+      id: markerId,
       pathId: point.pathId,
       name: `КП ${point.id.slice(0, 2)}`,
       points: [point],
@@ -124,7 +126,8 @@ function Map() {
       lng: point.lng
     }
     return () => {
-      dispatch(addMarker(newMarker))
+      dispatch(addMarker(newMarker));
+      dispatch(editPoint(point));
     }
   }
 
@@ -142,6 +145,7 @@ function Map() {
           nextId: '',
           prevId: Object.values(variantState || {}).length > 0 ? currentPointId : '',
           pathId: currentPathId,
+          markerId: marker.id,
           pathVariantId: currentPathVariantId,
           lat: marker.lat,
           lng: marker.lng,

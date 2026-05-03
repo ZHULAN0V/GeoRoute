@@ -135,12 +135,173 @@ export const pathSlice = createSlice({
         .variants[action.payload.id] = action.payload;
     },
     deletePathVariant: (state, action: PayloadAction<IPathVariant>) => {
-      delete state.paths[action.payload.pathId]
-        .variants[action.payload.id];
+      const variant = action.payload
+      for (const point of Object.values(variant.path)) {
+        if (point.markerId) {
+          state.paths[variant.pathId].markers[point.markerId].points = state.paths[variant.pathId].markers[point.markerId].points.filter(x => x.id != point.id)
+        }
+      }
+      delete state.paths[variant.pathId].variants[variant.id];
     },
     editPathVariant: (state, action: PayloadAction<IPathVariant>) => {
       state.paths[action.payload.pathId]
         .variants[action.payload.id] = action.payload;
+    },
+    // меняет части вариантов
+    margeVariantToMain: (state, action: PayloadAction<IPathVariant>) => {
+      const variant = action.payload;
+      const path = state.paths[variant.pathId];
+      const mainVariant = Object.values(path.variants).find(v => v.isMain);
+
+      // проверяем нашлись ли все точки
+      if (variant.startMarkerId == undefined 
+        || variant.endMarkerId == undefined 
+        || mainVariant == undefined) {
+        return 
+      }
+
+      // находим маркеры и начальную точку от маркера у основного варианта
+      const startMarker = path.markers[variant.startMarkerId];
+      const endMarker = path.markers[variant.endMarkerId];
+      let currenPoint = Object.values(mainVariant.path).find(p => p.markerId == startMarker.id);
+
+      // создаем дублирующий маршрут для того чтобы в дальнейшем поменять его с вторичным
+      const currentPath = [{...currenPoint}];
+
+      if (!currenPoint) {
+        return 
+      }
+
+      // проходит от начала до конца сегмента и удаляет все точки
+      while (mainVariant.path[currenPoint.id]?.markerId != endMarker.id && !!currenPoint.nextId) {
+        const prevPoint = {...currenPoint}
+        currenPoint = mainVariant.path[currenPoint.nextId];
+        // добавляем дубликат
+        currentPath.push({...currenPoint});
+        // удаляем точку
+        if (mainVariant.path[prevPoint.id]?.markerId != startMarker.id) {
+          const point = prevPoint;
+          delete state.paths[point.pathId].variants[point.pathVariantId].path[point.id];
+          // есть есть предыдущая точка обновляем для нее nextId
+          if (state.paths[point.pathId].variants[point.pathVariantId].path[point.prevId] != undefined) {
+            state.paths[point.pathId].variants[point.pathVariantId].path[point.prevId].nextId = point.nextId;
+          }
+          // есть есть последующая точка обновляем для нее prevId
+          if (state.paths[point.pathId].variants[point.pathVariantId].path[point.nextId] != undefined) {
+            state.paths[point.pathId].variants[point.pathVariantId].path[point.nextId].prevId = point.prevId;
+          }
+        }
+      }
+
+      // получаем точки у второстепенного маршрута для дальнейшей работы
+      const newCurrentPath2 = JSON.parse(JSON.stringify(currentPath.slice(1, -1)));
+      const startPointVariant = JSON.parse(JSON.stringify(Object.values(state.paths[path.id].variants[variant.id].path)[0]));
+      const endPointVariant = JSON.parse(JSON.stringify(Object.values(state.paths[path.id].variants[variant.id].path)[Object.values(state.paths[path.id].variants[variant.id].path).length - 1]));
+
+      if (!startPointVariant || !endPointVariant) {
+        return 
+      }
+
+      if (newCurrentPath2.length > 0) {
+        // связываем точки
+        startPointVariant.nextId = newCurrentPath2[0].id
+        newCurrentPath2[0].prevId = startPointVariant.id;
+
+        endPointVariant.prevId = newCurrentPath2[newCurrentPath2.length -1].id; 
+        newCurrentPath2[newCurrentPath2.length -1].nextId = endPointVariant.id;
+      } else {
+        startPointVariant.nextId = endPointVariant.id;
+        endPointVariant.prevId = startPointVariant.id;
+      }
+
+      
+
+      // получает начальную и конечную точку основного маршрута
+      const startPoint = Object.values(state.paths[path.id].variants[mainVariant.id].path).find(p => p.markerId == startMarker.id);
+      const endPoint = Object.values(state.paths[path.id].variants[mainVariant.id].path).find(p => p.markerId == endMarker.id);
+
+      if (!startPoint || !endPoint) {
+        return 
+      }
+
+      // получаем массив вторичного варианта без первой и последней точки
+      const points = JSON.parse(JSON.stringify(Object.values(state.paths[path.id].variants[variant.id].path).slice(1, -1)));
+      if (points.length > 0) {
+        // связываем крайние точки между собой
+        startPoint.nextId = points[0].id
+        points[0].prevId = startPoint.id;
+
+        endPoint.prevId = points[points.length -1].id; 
+        points[points.length -1].nextId = endPoint.id;
+
+        // добавляем измененные точки в путь варианта
+        state.paths[variant.pathId].variants[mainVariant.id].path[startPoint.id] = JSON.parse(JSON.stringify(startPoint));
+        state.paths[variant.pathId].variants[mainVariant.id].path[endPoint.id] = JSON.parse(JSON.stringify(endPoint));
+
+        for (const point of points) {
+          state.paths[variant.pathId].variants[mainVariant.id].path[point.id] = {
+            ...point,
+            pathVariantId: mainVariant.id,
+          };
+        }
+      }
+
+
+
+      // сортируем путь основного варианта
+      const newPoints = createOrderedPath(state.paths[variant.pathId].variants[mainVariant.id].path);
+      state.paths[variant.pathId].variants[mainVariant.id].path = {};
+      for (const point of newPoints) {
+        state.paths[variant.pathId].variants[mainVariant.id].path[point.id] = point;
+      }
+      
+      // заменяем данные во вторичном варианте но основной чтобы их не потерять
+      if (newCurrentPath2.length > 0) {
+        // обновляем данные
+        state.paths[variant.pathId].variants[variant.id].path = {};
+        state.paths[variant.pathId].variants[variant.id].path[startPointVariant.id] = JSON.parse(JSON.stringify(startPointVariant));
+        state.paths[variant.pathId].variants[variant.id].path[endPointVariant.id] = JSON.parse(JSON.stringify(endPointVariant));
+        
+        for (const point of newCurrentPath2) {
+          state.paths[variant.pathId].variants[variant.id].path[point.id] = {
+            ...point,
+            pathVariantId: variant.id,
+          };
+        }
+      }
+
+      // сортируем точки вторичного варианта
+      const newPoints2 = createOrderedPath(state.paths[variant.pathId].variants[variant.id].path);
+      state.paths[variant.pathId].variants[variant.id].path = {};
+      for (const point of newPoints2) {
+        state.paths[variant.pathId].variants[variant.id].path[point.id] = point;
+      }
+
+
+
+      // обновляем данные по точкам у стартового маркера
+      const newStartMarkerPoints = [];
+      for (const point of startMarker.points) {
+        for (const variant of Object.values(state.paths[path.id].variants)) {
+          const findPoint = variant.path[point.id];
+          if (findPoint != undefined) {
+            newStartMarkerPoints.push(findPoint);
+          }
+        }
+      }
+      state.paths[variant.pathId].markers[startMarker.id].points = newStartMarkerPoints;
+
+      // обновляем данные по точкам у конечного маркера
+      const newEndMarkerPoints = [];
+      for (const point of endMarker.points) {
+        for (const variant of Object.values(state.paths[path.id].variants)) {
+          const findPoint = variant.path[point.id];
+          if (findPoint != undefined) {
+            newEndMarkerPoints.push(findPoint);
+          }
+        }
+      }
+      state.paths[variant.pathId].markers[endMarker.id].points = newEndMarkerPoints;
     },
 
 
@@ -201,7 +362,6 @@ export const pathSlice = createSlice({
         acc[point.id] = point;
         return acc;
       }, {} as IPathVariantPointsObject);
-
     },
 
     
@@ -266,6 +426,11 @@ export const pathSlice = createSlice({
     addMarker: (state, action: PayloadAction<IMarker>) => {
       const marker = action.payload;
       state.paths[marker.pathId].markers[marker.id] = marker;
+      
+      for (const point of marker.points) {
+        state.paths[point.pathId].variants[point.pathVariantId].path[point.id] = point;
+      }
+      // точке на которую нажимую нуэно так же добавлять 
     },
     editMarker: (state, action: PayloadAction<IMarker>) => {
       const marker = action.payload;
@@ -291,6 +456,7 @@ export const {
   createPathVariant, 
   deletePathVariant, 
   editPathVariant, 
+  margeVariantToMain,
 
   addPoint, 
   addPointBetween,
