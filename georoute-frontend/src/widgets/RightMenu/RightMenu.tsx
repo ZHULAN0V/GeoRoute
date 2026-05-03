@@ -39,8 +39,6 @@ function RightMenu() {
     }
   }, [currentPathId, markerIds.startMarkerId, pathObject, markerIds.endMarkerId])
 
-  // console.log(filteredVariants);
-
   const debounced = useDebouncedCallback(() => {
     dispatch(editPath({...path!, name, color}));
     dispatch(editPathVariant({...path?.variants[currentPathVariantId], name: variantName, color: variantColor}));
@@ -57,7 +55,7 @@ function RightMenu() {
       name: path?.name || '',
       color: path?.color || '#000000',
       distance: 0,
-      isVisible: false,
+      isVisible: true,
       path: {},
     };
     dispatch(createPathVariant(newItem));
@@ -118,9 +116,9 @@ function RightMenu() {
         }}/>
       </div>
 
-      <div className={styles['path-data']}>
+      {/* <div className={styles['path-data']}>
         <div className={styles['path-data__text']}><p>Протяженность:</p> <p>12.7 km</p></div>
-      </div>
+      </div> */}
       <Button startIcon={<AddIcon/>} onClick={onAddPathVariant}>Добавить вариант</Button>
       <div className={styles.button}>
         <MatchCurrentPathButton/>

@@ -135,12 +135,121 @@ export const pathSlice = createSlice({
         .variants[action.payload.id] = action.payload;
     },
     deletePathVariant: (state, action: PayloadAction<IPathVariant>) => {
-      delete state.paths[action.payload.pathId]
-        .variants[action.payload.id];
+      const variant = action.payload
+      for (const point of Object.values(variant.path)) {
+        if (point.markerId) {
+          state.paths[variant.pathId].markers[point.markerId].points = state.paths[variant.pathId].markers[point.markerId].points.filter(x => x.id != point.id)
+        }
+      }
+      delete state.paths[variant.pathId].variants[variant.id];
     },
     editPathVariant: (state, action: PayloadAction<IPathVariant>) => {
       state.paths[action.payload.pathId]
         .variants[action.payload.id] = action.payload;
+    },
+    // меняет части вариантов
+    margeVariantToMain: (state, action: PayloadAction<IPathVariant>) => {
+      const variant = action.payload;
+      const path = state.paths[variant.pathId];
+      const mainVariant = Object.values(path.variants).find(v => v.isMain);
+
+      if (variant.startMarkerId == undefined 
+        || variant.endMarkerId == undefined 
+        || mainVariant == undefined) {
+        return 
+      }
+
+      const startMarker = path.markers[variant.startMarkerId];
+      const endMarker = path.markers[variant.endMarkerId];
+      let currenPoint = Object.values(mainVariant.path).find(p => p.markerId == startMarker.id);
+
+      const currentPath = [{...currenPoint}];
+
+      if (!currenPoint) {
+        return 
+      }
+
+      // проходит от начала до конца сегмента и удаляет все точки
+      while (mainVariant.path[currenPoint.id]?.markerId != endMarker.id && !!currenPoint.nextId) {
+        const prevPoint = {...currenPoint}
+        currenPoint = mainVariant.path[currenPoint.nextId];
+        currentPath.push({...currenPoint});
+        if (mainVariant.path[prevPoint.id]?.markerId != startMarker.id) {
+          const point = prevPoint;
+          delete state.paths[point.pathId].variants[point.pathVariantId].path[point.id];
+          // есть есть предыдущая точка обновляем для нее nextId
+          if (state.paths[point.pathId].variants[point.pathVariantId].path[point.prevId] != undefined) {
+            state.paths[point.pathId].variants[point.pathVariantId].path[point.prevId].nextId = point.nextId;
+          }
+          // есть есть последующая точка обновляем для нее prevId
+          if (state.paths[point.pathId].variants[point.pathVariantId].path[point.nextId] != undefined) {
+            state.paths[point.pathId].variants[point.pathVariantId].path[point.nextId].prevId = point.prevId;
+          }
+        }
+      }
+
+      currentPath[0].prevId = '';
+      currentPath[currentPath.length - 1].nextId = '';
+
+      for (let i = 0; i < currentPath.length; i++) {
+        currentPath[i].pathVariantId = variant.id;
+      }
+
+      const startPoint = Object.values(mainVariant.path).find(p => p.markerId == startMarker.id);
+      const endPoint = Object.values(mainVariant.path).find(p => p.markerId == endMarker.id);
+
+      if (!startPoint || !endPoint) {
+        return 
+      }
+
+      const points = JSON.parse(JSON.stringify(Object.values(variant.path).slice(1, -1)));
+      if (points.length <= 0) {
+        return
+      }
+
+      startPoint.nextId = points[0].id
+      points[0].prevId = startPoint.id;
+
+      endPoint.prevId = points[points.length -1].id; 
+      points[points.length -1].nextId = endPoint.id;
+
+      state.paths[variant.pathId].variants[mainVariant.id].path[startPoint.id] = JSON.parse(JSON.stringify(startPoint));
+      state.paths[variant.pathId].variants[mainVariant.id].path[endPoint.id] = JSON.parse(JSON.stringify(endPoint));
+
+      state.paths[variant.pathId].markers[variant.startMarkerId].points = 
+        [...state.paths[variant.pathId].markers[variant.startMarkerId].points.filter(x => x.id != startPoint.id), startPoint];
+      state.paths[variant.pathId].markers[variant.endMarkerId].points = 
+        [...state.paths[variant.pathId].markers[variant.endMarkerId].points.filter(x => x.id != endPoint.id), endPoint];
+
+      for (const point of points) {
+        state.paths[variant.pathId].variants[mainVariant.id].path[point.id] = {
+          ...point,
+          pathVariantId: mainVariant.id,
+        };
+      }
+
+
+      const newPoints = createOrderedPath(state.paths[variant.pathId].variants[mainVariant.id].path);
+
+      state.paths[variant.pathId].variants[mainVariant.id].path = {};
+      for (const point of newPoints) {
+        state.paths[variant.pathId].variants[mainVariant.id].path[point.id] = point;
+      }
+
+      // for (const point of Object.values(variant.path)) {
+      //   if (point.markerId) {
+      //     state.paths[variant.pathId].markers[point.markerId].points = state.paths[variant.pathId].markers[point.markerId].points.filter(x => x.id != point.id)
+      //   }
+      // }
+      // delete state.paths[variant.pathId].variants[variant.id];
+
+      const newCurrentPath: {[index: string]: IPoint} = {};
+      for (let i = 0; i < currentPath.length; i++) {
+        //@ts-expect-error пишет undefined у всех типов не знаю пока что сделать пусть будет так
+        newCurrentPath[String(currentPath[i].id)] = currentPath[i]
+      }
+      state.paths[variant.pathId].variants[variant.id].path = newCurrentPath;
+
     },
 
 
@@ -201,7 +310,6 @@ export const pathSlice = createSlice({
         acc[point.id] = point;
         return acc;
       }, {} as IPathVariantPointsObject);
-
     },
 
     
@@ -266,6 +374,11 @@ export const pathSlice = createSlice({
     addMarker: (state, action: PayloadAction<IMarker>) => {
       const marker = action.payload;
       state.paths[marker.pathId].markers[marker.id] = marker;
+      
+      for (const point of marker.points) {
+        state.paths[point.pathId].variants[point.pathVariantId].path[point.id] = point;
+      }
+      // точке на которую нажимую нуэно так же добавлять 
     },
     editMarker: (state, action: PayloadAction<IMarker>) => {
       const marker = action.payload;
@@ -291,6 +404,7 @@ export const {
   createPathVariant, 
   deletePathVariant, 
   editPathVariant, 
+  margeVariantToMain,
 
   addPoint, 
   addPointBetween,

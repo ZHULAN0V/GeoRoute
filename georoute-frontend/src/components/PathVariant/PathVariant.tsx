@@ -6,7 +6,7 @@ import type { IPathVariant } from '../../services/types/Path';
 import type { RootState } from '../../providers/store';
 import { useDispatch, useSelector } from 'react-redux';
 // import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
-import { deletePathVariant, editPathVariant } from '../../providers/paths/path-reducer';
+import { deletePathVariant, editPathVariant, margeVariantToMain } from '../../providers/paths/path-reducer';
 import { setPathVariantId } from '../../providers/paths/current-path-variant-id-reducer';
 // import SwapVertIcon from '@mui/icons-material/SwapVert';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -28,22 +28,27 @@ function PathVariant(props: IPathVariantProps) {
   const dispatch = useDispatch();
 
   const handleDelete = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      e.stopPropagation();
-      dispatch(deletePathVariant(pathVariant));
-      // if (currentPathId == path.id) {
-      //   dispatch(unchosePath());
-      // }
-    };
-  
-    const handleChosePath = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      e.stopPropagation();
-      dispatch(setPathVariantId(pathVariant.id));
-    };
-  
-    const handleSetCheckedPath = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      e.stopPropagation();
-      dispatch(editPathVariant({...pathVariant, isVisible: !pathVariant.isVisible}));
-    };
+    e.stopPropagation();
+    dispatch(deletePathVariant(pathVariant));
+    // if (currentPathId == path.id) {
+    //   dispatch(unchosePath());
+    // }
+  };
+
+  const handleChosePath = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.stopPropagation();
+    dispatch(setPathVariantId(pathVariant.id));
+  };
+
+  const handleSetCheckedPath = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation();
+    dispatch(editPathVariant({...pathVariant, isVisible: !pathVariant.isVisible}));
+  };
+
+  const handleCallMergePath = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation();
+    dispatch(margeVariantToMain(pathVariant))
+  }
 
   return (
     <div className={`${styles['path-item']} ${styles[currentPathVariantId == pathVariant.id ? 'active' : '']}`} onClick={handleChosePath}>
@@ -57,7 +62,7 @@ function PathVariant(props: IPathVariantProps) {
           <div className={styles['color-text']}>{pathVariant.color}</div>
         </div>
         <div className={styles['buttons']}>
-          { !pathVariant.isMain &&<IconButton  onClick={() => {}} sx={{width: 28, height: 28}} >
+          { !pathVariant.isMain && <IconButton onClick={handleCallMergePath} sx={{width: 28, height: 28}} >
             <CallMergeIcon sx={{width: 20, height: 20, color: '#212121'}} />
           </IconButton> }
           { !pathVariant.isMain && <IconButton  onClick={handleDelete} sx={{width: 28, height: 28}}>

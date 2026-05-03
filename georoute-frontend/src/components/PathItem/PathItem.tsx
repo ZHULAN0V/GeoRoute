@@ -39,8 +39,12 @@ function PathItem(props: IPathItemProps) {
 
   const handleChosePath = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.stopPropagation();
+    if (currentPathId != '') {
+      dispatch(setPathVariantId(''))
+    } else {
+      dispatch(setPathVariantId(Object.keys(path.variants)[0] || ''))
+    }
     dispatch(chosePathId(path.id));
-    dispatch(setPathVariantId(Object.keys(path.variants)[0] || ''))
   };
 
   const handleSetCheckedPath = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
