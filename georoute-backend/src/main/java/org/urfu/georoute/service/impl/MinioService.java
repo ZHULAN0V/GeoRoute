@@ -24,7 +24,7 @@ import io.minio.errors.MinioException;
 import io.minio.messages.Item;
 
 @Service
-public class MinioService implements FileStorageService {
+class MinioService implements FileStorageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MinioService.class);
 

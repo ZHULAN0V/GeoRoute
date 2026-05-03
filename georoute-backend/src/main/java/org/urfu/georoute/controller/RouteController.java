@@ -12,21 +12,28 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.urfu.georoute.service.FileStorageService;
 
+import org.urfu.georoute.Constants;
+import org.urfu.georoute.service.FileStorageService;
+import org.urfu.georoute.service.MapMatchingService;
+
+import io.jenetics.jpx.GPX;
 import io.minio.errors.MinioException;
 
 @RestController
 @RequestMapping(value = "/api/{version}/routes")
 public class RouteController {
 
+    private final MapMatchingService mapMatchingService;
     private final FileStorageService fileStorageService;
 
-    public RouteController(FileStorageService fileStorageService) {
+    public RouteController(MapMatchingService mapMatchingService, FileStorageService fileStorageService) {
+        this.mapMatchingService = mapMatchingService;
         this.fileStorageService = fileStorageService;
     }
 
@@ -55,6 +62,11 @@ public class RouteController {
     @PostMapping(version = "1.0")
     public String saveRoute(@RequestParam("file") MultipartFile file) throws IOException {
         return fileStorageService.saveFile(file);
+    }
+
+    @PostMapping(value = "/match", version = "1.0", produces = Constants.APPLICATION_GPX_XML_VALUE)
+    public GPX matchRoute(@RequestBody GPX route) {
+        return mapMatchingService.match(route);
     }
 
     @DeleteMapping(value = "/{routeName}", version = "1.0")
