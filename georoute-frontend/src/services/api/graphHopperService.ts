@@ -10,12 +10,6 @@ const getMatchedPath = async (gpxData: string) => {
       {
         headers: {
           'Content-Type': 'application/gpx+xml'
-        },
-        params: {
-          profile: 'foot', // тип маршрута 1 из следующих: foot, bike, car
-          gps_accuracy: 20, // точность маршрута в метрах
-          type: 'json',
-          points_encoded: 'LineString'
         }
       }
     );
