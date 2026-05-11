@@ -9,13 +9,13 @@
   border-radius: 8px;
   /* подумать над бэкграундом */
   background-color: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(4px); 
+  backdrop-filter: blur(4px);
 
   position: absolute;
   right: 16px;
   top: 16px;
   z-index: 1000;
-  overflow-y: auto
+  overflow-y: auto;
 }
 
 .list {
@@ -31,7 +31,7 @@
   background: #c4c4c4;
 } */
 .right-menu::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.23);;
+  background-color: rgba(0, 0, 0, 0.23);
   border-radius: 2px;
 }
 

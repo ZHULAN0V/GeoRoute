@@ -3,12 +3,14 @@ const createXmlString = (lines: [number, number][][]): string => {
   const result: string[] = [];
 
   for (const line of lines) {
-    renderedLines.push([])
+    renderedLines.push([]);
     for (const point of line) {
-      renderedLines[renderedLines.length - 1].push(`<trkpt lat="${point[0]}" lon="${point[1]}"></trkpt>`)
+      renderedLines[renderedLines.length - 1].push(
+        `<trkpt lat="${point[0]}" lon="${point[1]}"></trkpt>`,
+      );
     }
     result.push(`  <trkseg>
-    ${renderedLines[renderedLines.length - 1].join('\n    ')}
+    ${renderedLines[renderedLines.length - 1].join("\n    ")}
   </trkseg>`);
   }
 
@@ -23,10 +25,10 @@ const createXmlString = (lines: [number, number][][]): string => {
 
 <trk>
 <name>GraphHopper Track</name><desc></desc>
-${result.join('\n')}
+${result.join("\n")}
 </trk>
 
-</gpx>`
-}
+</gpx>`;
+};
 
 export default createXmlString;

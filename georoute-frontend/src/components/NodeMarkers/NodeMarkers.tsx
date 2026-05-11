@@ -6,36 +6,42 @@ import { Marker, Tooltip } from "react-leaflet";
 import type { IMarker } from "../../services/types/Path";
 
 const customIcon = new Icon({
-  iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Yandex_Maps_icon.svg/1280px-Yandex_Maps_icon.svg.png',
+  iconUrl:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Yandex_Maps_icon.svg/1280px-Yandex_Maps_icon.svg.png",
   iconSize: [32, 32],
   iconAnchor: [16, 32],
-})
+});
 
 interface INodeMarkersProps {
-  handleMarkerNodeClick: (point: IMarker) => (e: LeafletMouseEvent) => void,
-  handleDragMarkerNode: (marker: IMarker) => (e: LeafletMouseEvent) => void,
-  handleDeleteMarkerNode: (marker: IMarker) => (e: LeafletMouseEvent) => void,
+  handleMarkerNodeClick: (point: IMarker) => (e: LeafletMouseEvent) => void;
+  handleDragMarkerNode: (marker: IMarker) => (e: LeafletMouseEvent) => void;
+  handleDeleteMarkerNode: (marker: IMarker) => (e: LeafletMouseEvent) => void;
 }
 
 const NodeMarkers = (props: INodeMarkersProps) => {
   const {
-    handleMarkerNodeClick, 
+    handleMarkerNodeClick,
     handleDragMarkerNode,
-    handleDeleteMarkerNode
+    handleDeleteMarkerNode,
   } = props;
 
   const pathObject = useSelector((state: RootState) => state.pathObject);
-  const currentPathId = useSelector((state: RootState) => state.currentPathId.currentPathId);
+  const currentPathId = useSelector(
+    (state: RootState) => state.currentPathId.currentPathId,
+  );
   // const currentPathVariantId = useSelector((state: RootState) => state.currentPathVariantId.currentPathVariantId);
 
-  const markers = useMemo(() => Object.values(pathObject.paths[currentPathId]?.markers || {}), [pathObject, currentPathId]);
+  const markers = useMemo(
+    () => Object.values(pathObject.paths[currentPathId]?.markers || {}),
+    [pathObject, currentPathId],
+  );
 
   return (
     <>
-      {markers.map(marker => 
-        <Marker 
-          key={marker.id} 
-          position={[marker.lat, marker.lng]} 
+      {markers.map((marker) => (
+        <Marker
+          key={marker.id}
+          position={[marker.lat, marker.lng]}
           draggable
           icon={customIcon}
           eventHandlers={{
@@ -51,15 +57,17 @@ const NodeMarkers = (props: INodeMarkersProps) => {
             offset={[0, -30]}
             className="marker-tooltip"
           >
-            <div style={{
-              fontSize: '12px',
-              whiteSpace: 'nowrap'
-            }}>
-              {marker.name || 'Маркер'}
+            <div
+              style={{
+                fontSize: "12px",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {marker.name || "Маркер"}
             </div>
           </Tooltip>
         </Marker>
-      )}
+      ))}
     </>
   );
 };

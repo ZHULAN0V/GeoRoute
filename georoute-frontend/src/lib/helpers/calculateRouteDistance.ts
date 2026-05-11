@@ -35,8 +35,7 @@ function calculateRouteDistance(coordinates: [number, number][]): number {
     // Формула гаверсинусов
     const a =
       Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-      Math.cos(φ1) * Math.cos(φ2) *
-      Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = EARTH_RADIUS_KM * c;
@@ -47,4 +46,4 @@ function calculateRouteDistance(coordinates: [number, number][]): number {
   return Number(totalDistance.toFixed(2));
 }
 
-export default calculateRouteDistance
+export default calculateRouteDistance;

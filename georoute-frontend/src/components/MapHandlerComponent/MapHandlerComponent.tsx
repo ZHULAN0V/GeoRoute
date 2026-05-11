@@ -10,16 +10,20 @@ interface MapHandlerComponentProps {
 function MapHandlerComponent(props: MapHandlerComponentProps) {
   const { handleMapClick, handleMapMouseMove, handleMapContextMenu } = props;
   // const map = useMap();
-  useMapEvent('click', (e) => { // ЛКМ
+  useMapEvent("click", (e) => {
+    // ЛКМ
     handleMapClick(e);
   });
-  useMapEvent('mousemove', (e) => { // движение мыши
+  useMapEvent("mousemove", (e) => {
+    // движение мыши
     handleMapMouseMove(e);
   });
-  useMapEvent('dblclick', () => { // двойной клик и так понятно конечно
+  useMapEvent("dblclick", () => {
+    // двойной клик и так понятно конечно
     // handleMapMouseMove(e);
   });
-  useMapEvent('contextmenu', () => { // ПКМ
+  useMapEvent("contextmenu", () => {
+    // ПКМ
     handleMapContextMenu();
   });
   return null;

@@ -7,11 +7,7 @@ import parseGpxIntoVariantsJSON from "./parseGPXIntoVariantsJSON";
 import parseGPXIntoMarkersJSON from "./parseGPXIntoMarkersJSON";
 import parseGpxIntoPathJSON from "./parseGPXIntoPathJSON";
 
-
-export const loadPathJSON = async (
-  names: string[],
-  dispatch: AppDispatch
-) => {
+export const loadPathJSON = async (names: string[], dispatch: AppDispatch) => {
   try {
     const promises = names.map(async (name) => {
       const file = await getFileByName(name);
@@ -20,10 +16,20 @@ export const loadPathJSON = async (
       const markers = parseGPXIntoMarkersJSON(file);
       const path = parseGpxIntoPathJSON(file);
 
-      path.markers = markers.reduce((acc, marker) => 
-        {acc[marker.id] = marker; return acc}, {} as {[index: string]: IMarker});
-      path.variants = variants.reduce((acc, variant) => 
-        {acc[variant.id] = variant; return acc}, {} as {[index: string]: IPathVariant});
+      path.markers = markers.reduce(
+        (acc, marker) => {
+          acc[marker.id] = marker;
+          return acc;
+        },
+        {} as { [index: string]: IMarker },
+      );
+      path.variants = variants.reduce(
+        (acc, variant) => {
+          acc[variant.id] = variant;
+          return acc;
+        },
+        {} as { [index: string]: IPathVariant },
+      );
 
       dispatch(addPath(path));
       return path;
@@ -31,6 +37,6 @@ export const loadPathJSON = async (
 
     await Promise.all(promises);
   } catch (error) {
-    console.error('Error loading paths:', error);
+    console.error("Error loading paths:", error);
   }
 };

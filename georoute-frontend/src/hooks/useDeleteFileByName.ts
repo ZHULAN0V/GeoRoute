@@ -3,9 +3,9 @@ import { deleteFileByName } from "../services/api/gpxSevice";
 
 export const useDeleteFileByName = (options = {}) => {
   return useMutation({
-    mutationKey: ['deleteFile'],
+    mutationKey: ["deleteFile"],
     mutationFn: (data: { fileName: string }) => deleteFileByName(data.fileName),
     retry: 3,
-    ...options 
+    ...options,
   });
 };
