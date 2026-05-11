@@ -16,9 +16,8 @@
   top: 16px;
   z-index: 1000;
 
-  overflow-y: auto
+  overflow-y: auto;
 }
-
 
 /* стилизация скроллбара */
 .left-menu::-webkit-scrollbar {
@@ -28,7 +27,7 @@
   background: #c4c4c4;
 } */
 .left-menu::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.23);;
+  background-color: rgba(0, 0, 0, 0.23);
   border-radius: 2px;
 }
 

@@ -1,12 +1,12 @@
 .colorInput {
   -webkit-appearance: none; /* Убирает стили в Chrome/Safari/Edge */
-  -moz-appearance: none;    /* Убирает стили в Firefox */
-  appearance: none;         /* Стандартное свойство */
-  border: none;             /* Убирает границу */
-  min-width: 36px;              /* Задайте нужный размер */
+  -moz-appearance: none; /* Убирает стили в Firefox */
+  appearance: none; /* Стандартное свойство */
+  border: none; /* Убирает границу */
+  min-width: 36px; /* Задайте нужный размер */
   min-height: 36px;
   cursor: pointer;
-  background: none;         /* Убирает фон по умолчанию */
+  background: none; /* Убирает фон по умолчанию */
   /* padding-top: 1px; */
 }
 

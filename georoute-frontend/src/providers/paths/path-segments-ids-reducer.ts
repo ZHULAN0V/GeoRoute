@@ -1,18 +1,18 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
 
 export interface PathState {
-  startMarkerId: string,
-  endMarkerId: string,
+  startMarkerId: string;
+  endMarkerId: string;
 }
 
 const initialState: PathState = {
-  startMarkerId: '',
-  endMarkerId: '',
-}
+  startMarkerId: "",
+  endMarkerId: "",
+};
 
 export const markerIdsSlice = createSlice({
-  name: 'markerIds',
+  name: "markerIds",
   initialState,
   reducers: {
     chooseStartMarkerId: (state, action: PayloadAction<string>) => {
@@ -22,11 +22,9 @@ export const markerIdsSlice = createSlice({
       state.endMarkerId = action.payload;
     },
   },
-})
+});
 
-export const { 
-  chooseStartMarkerId, 
-  chooseEndMarkerId 
-} = markerIdsSlice.actions
+export const { chooseStartMarkerId, chooseEndMarkerId } =
+  markerIdsSlice.actions;
 
-export default markerIdsSlice.reducer
+export default markerIdsSlice.reducer;

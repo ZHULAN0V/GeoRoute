@@ -1,32 +1,32 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
 
 export interface PathState {
-  currentPathId: string
+  currentPathId: string;
 }
 
 const initialState: PathState = {
-  currentPathId: '',
-}
+  currentPathId: "",
+};
 
 export const currentPathIdSlice = createSlice({
-  name: 'currentPathId',
+  name: "currentPathId",
   initialState,
   reducers: {
     chosePathId: (state, action: PayloadAction<string>) => {
       if (state.currentPathId == action.payload) {
-        state.currentPathId = '';
+        state.currentPathId = "";
       } else {
         state.currentPathId = action.payload;
       }
     },
     unchosePathId: (state) => {
-      state.currentPathId = '';
+      state.currentPathId = "";
     },
   },
-})
+});
 
 // Action creators are generated for each case reducer function
-export const { chosePathId, unchosePathId } = currentPathIdSlice.actions
+export const { chosePathId, unchosePathId } = currentPathIdSlice.actions;
 
-export default currentPathIdSlice.reducer
+export default currentPathIdSlice.reducer;

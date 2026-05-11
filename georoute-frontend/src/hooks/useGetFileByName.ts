@@ -3,8 +3,8 @@ import { getFileByName } from "../services/api/gpxSevice";
 
 export const useGetFile = (fileName: string, options = {}) => {
   return useQuery({
-    queryKey: ['file', fileName],
+    queryKey: ["file", fileName],
     queryFn: () => getFileByName(fileName),
-    ...options
+    ...options,
   });
 };
