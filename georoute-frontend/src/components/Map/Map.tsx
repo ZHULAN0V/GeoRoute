@@ -176,15 +176,29 @@ function Map() {
   const handleMarkerClick = (inputPoint: IPoint) => {
     const markerId = crypto.randomUUID();
     const point = { ...inputPoint, markerId };
-    const newMarker: IMarker = {
-      id: markerId,
-      pathId: point.pathId,
-      name: `КП ${point.id.slice(0, 2)}`,
-      points: [point],
-      order: 0,
-      lat: point.lat,
-      lng: point.lng,
-    };
+    let newMarker: IMarker;
+    if (currentButton == "double") {
+      newMarker = {
+        id: markerId,
+        pathId: point.pathId,
+        name: `Match ${point.id.slice(0, 2)}`,
+        points: [point],
+        order: 0,
+        lat: point.lat,
+        lng: point.lng,
+        isPathMatchMarker: true,
+      };
+    } else {
+      newMarker = {
+        id: markerId,
+        pathId: point.pathId,
+        name: `КП ${point.id.slice(0, 2)}`,
+        points: [point],
+        order: 0,
+        lat: point.lat,
+        lng: point.lng,
+      };
+    }
     return () => {
       dispatch(addMarker(newMarker));
       dispatch(editPoint(point));

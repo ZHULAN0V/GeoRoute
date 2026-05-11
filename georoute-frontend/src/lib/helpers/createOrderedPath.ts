@@ -16,7 +16,9 @@ const createOrderedPath = (
   }
 
   const result: IPoint[] = [];
-  let currentPoint = pointsArr.find((point) => point.prevId == "");
+  let currentPoint = pointsArr.find(
+    (point) => point.prevId == "" || pointsObject[point.prevId] == undefined,
+  );
   if (currentPoint == undefined) {
     throw new Error("There is no starting point in the points object");
   }

@@ -51,4 +51,5 @@ export interface IMarker {
   order: number;
   lat: number;
   lng: number;
+  isPathMatchMarker?: boolean;
 }

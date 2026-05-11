@@ -35,6 +35,12 @@ interface IAddPointBetweenProps {
   nextPoint: IPoint;
 }
 
+interface IAddManyPointBetweenLatLngProps {
+  prevPoint: IPoint;
+  nextPoint: IPoint;
+  pointsLatLng: [number, number][];
+}
+
 interface IAddPathFromImportProps {
   points: [number, number][];
 }
@@ -431,6 +437,83 @@ export const pathSlice = createSlice({
         }, {} as IPathVariantPointsObject);
     },
 
+    addManyPointsBetween: (
+      state,
+      action: PayloadAction<IAddManyPointBetweenLatLngProps>,
+    ) => {
+      const { prevPoint, nextPoint, pointsLatLng } = action.payload;
+
+      const newPath = [];
+      let prevId = prevPoint.id;
+      let currentId = crypto.randomUUID();
+      let nextId = crypto.randomUUID();
+
+      for (const latlng of pointsLatLng) {
+        const lat = latlng[0];
+        const lng = latlng[1];
+
+        const newPoint: IPoint = {
+          id: currentId,
+          nextId: nextId,
+          prevId: prevId,
+          pathId: prevPoint.pathId,
+          pathVariantId: prevPoint.pathVariantId,
+          lat,
+          lng,
+        };
+
+        prevId = currentId;
+        currentId = nextId;
+        nextId = crypto.randomUUID();
+
+        newPath.push(newPoint);
+      }
+
+      newPath[newPath.length - 1].nextId = nextPoint.id;
+      console.log(JSON.parse(JSON.stringify(newPath)));
+
+      const resultPath = newPath.reduce(
+        (acc: { [index: string]: IPoint }, cur) => {
+          acc[cur.id] = cur;
+          return acc;
+        },
+        {},
+      );
+
+      console.log(
+        JSON.parse(
+          JSON.stringify({
+            ...state.paths[prevPoint.pathId].variants[prevPoint.pathVariantId]
+              .path,
+            ...resultPath,
+          }),
+        ),
+      );
+
+      state.paths[prevPoint.pathId].variants[prevPoint.pathVariantId].path[
+        prevPoint.id
+      ] = { ...prevPoint, nextId: newPath[0].id };
+      state.paths[prevPoint.pathId].variants[prevPoint.pathVariantId].path[
+        nextPoint.id
+      ] = { ...nextPoint, prevId: newPath[newPath.length - 1].id };
+
+      const ordered = createOrderedPath({
+        ...state.paths[prevPoint.pathId].variants[prevPoint.pathVariantId].path,
+        ...resultPath,
+      });
+
+      console.log(JSON.parse(JSON.stringify(ordered)));
+
+      const result = ordered.reduce((acc: { [index: string]: IPoint }, cur) => {
+        acc[cur.id] = cur;
+        return acc;
+      }, {});
+
+      state.paths[prevPoint.pathId].variants[prevPoint.pathVariantId].path = {
+        ...result,
+      };
+    },
+
     // полностью обновляем путь
     addManyPoint: (state, action: PayloadAction<IAddManyPointsProps>) => {
       state.paths[action.payload.pathId].variants[
@@ -547,6 +630,7 @@ export const {
 
   addPoint,
   addPointBetween,
+  addManyPointsBetween,
   addManyPoint,
   addManyPointFromMathed,
   editPoint,

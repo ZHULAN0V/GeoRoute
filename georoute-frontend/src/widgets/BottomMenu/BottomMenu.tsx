@@ -25,7 +25,6 @@ function BottomMenu() {
 
   return (
     <div className={styles["bottom-menu"]}>
-      {/* qwertyu */}
       <IconButton
         onClick={handleClick("edit")}
         sx={{
@@ -41,16 +40,72 @@ function BottomMenu() {
       >
         <EditIcon sx={{ color: "#212121" }} />
       </IconButton>
-      <IconButton onClick={handleClick("delete")}>
+
+      <IconButton
+        onClick={handleClick("delete")}
+        sx={{
+          backgroundColor:
+            currentButton === "delete"
+              ? "rgba(37, 99, 235, 0.16)"
+              : "transparent",
+          "&:hover": {
+            backgroundColor:
+              currentButton === "delete"
+                ? "rgba(37, 99, 235, 0.24)"
+                : undefined,
+          },
+        }}
+      >
         <DeleteIcon sx={{ color: "#212121" }} />
       </IconButton>
-      <IconButton onClick={handleClick("double")}>
+
+      <IconButton
+        onClick={handleClick("double")}
+        sx={{
+          backgroundColor:
+            currentButton === "double"
+              ? "rgba(37, 99, 235, 0.16)"
+              : "transparent",
+          "&:hover": {
+            backgroundColor:
+              currentButton === "double"
+                ? "rgba(37, 99, 235, 0.24)"
+                : undefined,
+          },
+        }}
+      >
         <TurnSharpRightIcon sx={{ color: "#212121" }} />
       </IconButton>
-      <IconButton onClick={handleClick("undo")}>
+
+      <IconButton
+        onClick={handleClick("undo")}
+        sx={{
+          backgroundColor:
+            currentButton === "undo"
+              ? "rgba(37, 99, 235, 0.16)"
+              : "transparent",
+          "&:hover": {
+            backgroundColor:
+              currentButton === "undo" ? "rgba(37, 99, 235, 0.24)" : undefined,
+          },
+        }}
+      >
         <UndoIcon sx={{ color: "#212121" }} />
       </IconButton>
-      <IconButton onClick={handleClick("redo")}>
+
+      <IconButton
+        onClick={handleClick("redo")}
+        sx={{
+          backgroundColor:
+            currentButton === "redo"
+              ? "rgba(37, 99, 235, 0.16)"
+              : "transparent",
+          "&:hover": {
+            backgroundColor:
+              currentButton === "redo" ? "rgba(37, 99, 235, 0.24)" : undefined,
+          },
+        }}
+      >
         <RedoIcon sx={{ color: "#212121" }} />
       </IconButton>
     </div>
