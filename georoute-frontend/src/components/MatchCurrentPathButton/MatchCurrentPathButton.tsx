@@ -41,12 +41,6 @@ const MatchCurrentPathButton = () => {
         markerIds.startMarkerId,
         points,
       );
-      console.log(path);
-      console.log(
-        data.paths[0].points.coordinates.map(
-          (x: number[]) => [x[1], x[0]] as [number, number],
-        ),
-      );
       dispatch(
         addManyPointsBetween({
           prevPoint: path[0],

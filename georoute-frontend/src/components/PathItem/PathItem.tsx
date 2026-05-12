@@ -41,7 +41,7 @@ function PathItem(props: IPathItemProps) {
   const handleDelete = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation();
     dispatch(deletePath(path.id));
-    deleteFile({ fileName: path.name });
+    deleteFile({ fileName: path.id });
     if (currentPathId == path.id) {
       dispatch(unchosePathId());
     }

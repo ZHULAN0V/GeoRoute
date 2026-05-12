@@ -29,8 +29,6 @@ const CurrentLine = (props: CurrentLineProps) => {
         positions={
           Object.values(variantState || {}).map((x) => [x.lat, x.lng]) || []
         }
-        // positions={createOrderedPath(variantState || {}).map(x => [x.lat, x.lng]) || []}
-        // positions={createOrderedPath(variantState || {}).map(x => [x.lat, x.lng]) || []}
         eventHandlers={{}}
       />
 

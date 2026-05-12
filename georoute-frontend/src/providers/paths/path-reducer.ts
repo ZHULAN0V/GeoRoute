@@ -470,7 +470,6 @@ export const pathSlice = createSlice({
       }
 
       newPath[newPath.length - 1].nextId = nextPoint.id;
-      console.log(JSON.parse(JSON.stringify(newPath)));
 
       const resultPath = newPath.reduce(
         (acc: { [index: string]: IPoint }, cur) => {
@@ -478,16 +477,6 @@ export const pathSlice = createSlice({
           return acc;
         },
         {},
-      );
-
-      console.log(
-        JSON.parse(
-          JSON.stringify({
-            ...state.paths[prevPoint.pathId].variants[prevPoint.pathVariantId]
-              .path,
-            ...resultPath,
-          }),
-        ),
       );
 
       state.paths[prevPoint.pathId].variants[prevPoint.pathVariantId].path[
@@ -501,8 +490,6 @@ export const pathSlice = createSlice({
         ...state.paths[prevPoint.pathId].variants[prevPoint.pathVariantId].path,
         ...resultPath,
       });
-
-      console.log(JSON.parse(JSON.stringify(ordered)));
 
       const result = ordered.reduce((acc: { [index: string]: IPoint }, cur) => {
         acc[cur.id] = cur;

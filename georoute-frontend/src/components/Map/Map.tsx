@@ -43,7 +43,6 @@ function Map() {
   const currentButton = useSelector(
     (state: RootState) => state.currentButton.currentButton,
   );
-
   const currentPathId = useSelector(
     (state: RootState) => state.currentPathId.currentPathId,
   );
@@ -93,7 +92,7 @@ function Map() {
   // handlers для карты
   const handleMapClick = (e: LeafletMouseEvent) => {
     const { lat, lng } = e.latlng;
-    if (currentButton == "edit") {
+    if (currentButton == "edit" && currentPathId && currentPathVariantId) {
       const newPointId = crypto.randomUUID();
       const newPoint = {
         id: newPointId,
