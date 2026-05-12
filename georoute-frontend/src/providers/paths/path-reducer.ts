@@ -320,7 +320,18 @@ export const pathSlice = createSlice({
           point;
       }
 
-      // заменяем данные во вторичном варианте но основной чтобы их не потерять
+      // заменяем данные во вторичном варианте на основной чтобы их не потерять
+      // полное говно но пока работает трогать не буду
+      // весь этот файл полное говно, но времени на нормальный рефакторинг нет
+      if (newCurrentPath2.length == 0) {
+        state.paths[variant.pathId].variants[variant.id].path = {};
+        state.paths[variant.pathId].variants[variant.id].path[
+          startPointVariant.id
+        ] = JSON.parse(JSON.stringify(startPointVariant));
+        state.paths[variant.pathId].variants[variant.id].path[
+          endPointVariant.id
+        ] = JSON.parse(JSON.stringify(endPointVariant));
+      }
       if (newCurrentPath2.length > 0) {
         // обновляем данные
         state.paths[variant.pathId].variants[variant.id].path = {};
@@ -371,11 +382,16 @@ export const pathSlice = createSlice({
           }
         }
       }
+
       state.paths[variant.pathId].markers[endMarker.id].points =
         newEndMarkerPoints;
     },
 
     // Действия с точками
+    // баг с удалением и новым добавлением точки
+    // удалить добавить добавить и пропадает next ID,
+    // нужно добавлять именно к последней точке скорее всего
+    // иначе ничего не работает
     addPoint: (state, action: PayloadAction<IPoint>) => {
       const point = action.payload;
       // добавляем новую точку в объект

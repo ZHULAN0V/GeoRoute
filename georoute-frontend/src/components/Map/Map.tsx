@@ -168,6 +168,11 @@ function Map() {
 
   const handleMarkerDelete = (point: IPoint) => {
     return () => {
+      // нужно изменить current point если была удалена последняя точка
+      // может быть баг при изменении данных точки
+      if (!point.nextId) {
+        dispatch(chosePointId(point.prevId));
+      }
       dispatch(deletePoint(point));
     };
   };
