@@ -463,6 +463,24 @@ export const pathSlice = createSlice({
       let prevId = prevPoint.id;
       let currentId = crypto.randomUUID();
       let nextId = crypto.randomUUID();
+      if (prevPoint.nextId != nextPoint.id) {
+        let currentDeletePoint = {
+          ...state.paths[prevPoint.pathId].variants[prevPoint.pathVariantId]
+            .path[prevPoint.nextId],
+        };
+
+        while (currentDeletePoint.id != nextPoint.id) {
+          delete state.paths[currentDeletePoint.pathId].variants[
+            currentDeletePoint.pathVariantId
+          ].path[currentDeletePoint.id];
+
+          currentDeletePoint = {
+            ...state.paths[currentDeletePoint.pathId].variants[
+              currentDeletePoint.pathVariantId
+            ].path[currentDeletePoint.nextId],
+          };
+        }
+      }
 
       for (const latlng of pointsLatLng) {
         const lat = latlng[0];

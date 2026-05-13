@@ -4,6 +4,7 @@ import type { RootState } from "../../providers/store";
 import {
   addManyPointFromMathed,
   addManyPointsBetween,
+  deleteMarker,
 } from "../../providers/paths/path-reducer";
 import DirectionsWalkIcon from "@mui/icons-material/DirectionsWalk";
 import { useMatchRouteMutation } from "../../hooks/usePostMatchMap";
@@ -41,13 +42,36 @@ const MatchCurrentPathButton = () => {
         markerIds.startMarkerId,
         points,
       );
+      console.log("point & markers", path);
       dispatch(
         addManyPointsBetween({
-          prevPoint: path[0],
-          nextPoint: path[1],
+          prevPoint: path.points[0],
+          nextPoint: path.points[1],
           pointsLatLng: data.paths[0].points.coordinates.map(
             (x: number[]) => [x[1], x[0]] as [number, number],
           ),
+        }),
+      );
+      dispatch(
+        deleteMarker({
+          id: path.markers[0],
+          name: "",
+          pathId: path.points[0].pathId,
+          points: [],
+          order: 0,
+          lat: 0,
+          lng: 0,
+        }),
+      );
+      dispatch(
+        deleteMarker({
+          id: path.markers[1],
+          name: "",
+          pathId: path.points[1].pathId,
+          points: [],
+          order: 0,
+          lat: 0,
+          lng: 0,
         }),
       );
     }

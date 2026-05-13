@@ -18,7 +18,7 @@ const getPathFromCurrentMarkerToNext = (
   while (currentPoint.nextId && points[currentPoint.nextId]) {
     currentPoint = { ...points[currentPoint.nextId] };
     resultPath[currentPoint.id] = { ...currentPoint };
-    if (currentPoint.markerId != "") {
+    if (currentPoint.markerId != undefined) {
       break;
     }
   }
