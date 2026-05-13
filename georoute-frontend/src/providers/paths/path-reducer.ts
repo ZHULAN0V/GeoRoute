@@ -632,6 +632,13 @@ export const pathSlice = createSlice({
     },
     deleteMarker: (state, action: PayloadAction<IMarker>) => {
       const marker = action.payload;
+
+      for (const point of state.paths[marker.pathId].markers[marker.id]
+        .points) {
+        delete state.paths[point.pathId].variants[point.pathVariantId].path[
+          point.id
+        ].markerId;
+      }
       delete state.paths[marker.pathId].markers[marker.id];
     },
   },
