@@ -143,6 +143,8 @@ export const pathSlice = createSlice({
       state.paths = { ...state.paths, ...newPaths };
     },
 
+    //
+    //
     // Действия с вариантами
     createPathVariant: (state, action: PayloadAction<IPathVariant>) => {
       state.paths[action.payload.pathId].variants[action.payload.id] =
@@ -550,6 +552,18 @@ export const pathSlice = createSlice({
     ) => {
       const { pathId, pathVariantId, poinstArray } = action.payload;
 
+      const firstPoint = Object.values(
+        state.paths[pathId].variants[pathVariantId].path,
+      ).find((point) => point.prevId == "");
+
+      const lastPoint = Object.values(
+        state.paths[pathId].variants[pathVariantId].path,
+      ).find((point) => point.nextId == "");
+
+      if (!firstPoint || !lastPoint) {
+        return;
+      }
+
       // todo вынести логику в helper она повторяется
       const path = poinstArray
         .map(
@@ -574,7 +588,11 @@ export const pathSlice = createSlice({
           return { ...acc, [point.id]: point };
         }, {} as IPathVariantPointsObject);
 
-      state.paths[pathId].variants[pathVariantId].path = path;
+      state.paths[pathId].variants[pathVariantId].path = {
+        [firstPoint.id]: firstPoint,
+        ...path,
+        [lastPoint.id]: lastPoint,
+      };
     },
 
     editPoint: (state, action: PayloadAction<IPoint>) => {
@@ -610,6 +628,9 @@ export const pathSlice = createSlice({
       }
     },
 
+    //
+    //
+    //
     // действия с маркерами
     addMarker: (state, action: PayloadAction<IMarker>) => {
       const marker = action.payload;
