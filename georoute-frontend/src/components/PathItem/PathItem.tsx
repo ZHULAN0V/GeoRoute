@@ -85,6 +85,7 @@ function PathItem(props: IPathItemProps) {
         </div>
         <div className={styles["buttons"]}>
           <IconButton
+            title="удалить"
             sx={{ width: 28, height: 28 }}
             onClick={handleDelete}
             loading={isPending}
@@ -92,6 +93,7 @@ function PathItem(props: IPathItemProps) {
             <DeleteIcon sx={{ width: 20, height: 20, color: "#212121" }} />
           </IconButton>
           <IconButton
+            title="выбрать"
             sx={{ width: 28, height: 28 }}
             onClick={handleSetCheckedPath}
           >
