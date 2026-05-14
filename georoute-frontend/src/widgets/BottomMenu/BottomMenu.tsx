@@ -27,6 +27,7 @@ function BottomMenu() {
     <div className={styles["bottom-menu"]}>
       <IconButton
         onClick={handleClick("edit")}
+        title="редактировать"
         sx={{
           backgroundColor:
             currentButton === "edit"
@@ -43,6 +44,7 @@ function BottomMenu() {
 
       <IconButton
         onClick={handleClick("delete")}
+        title="удалить"
         sx={{
           backgroundColor:
             currentButton === "delete"
@@ -61,6 +63,7 @@ function BottomMenu() {
 
       <IconButton
         onClick={handleClick("double")}
+        title="частичный мэтчинг"
         sx={{
           backgroundColor:
             currentButton === "double"
@@ -79,6 +82,7 @@ function BottomMenu() {
 
       <IconButton
         onClick={handleClick("undo")}
+        title="отменить"
         sx={{
           backgroundColor:
             currentButton === "undo"
@@ -95,6 +99,7 @@ function BottomMenu() {
 
       <IconButton
         onClick={handleClick("redo")}
+        title="вернуть отмененное"
         sx={{
           backgroundColor:
             currentButton === "redo"
