@@ -143,6 +143,8 @@ export const pathSlice = createSlice({
       state.paths = { ...state.paths, ...newPaths };
     },
 
+    //
+    //
     // Действия с вариантами
     createPathVariant: (state, action: PayloadAction<IPathVariant>) => {
       state.paths[action.payload.pathId].variants[action.payload.id] =
@@ -320,7 +322,18 @@ export const pathSlice = createSlice({
           point;
       }
 
-      // заменяем данные во вторичном варианте но основной чтобы их не потерять
+      // заменяем данные во вторичном варианте на основной чтобы их не потерять
+      // полное говно но пока работает трогать не буду
+      // весь этот файл полное говно, но времени на нормальный рефакторинг нет
+      if (newCurrentPath2.length == 0) {
+        state.paths[variant.pathId].variants[variant.id].path = {};
+        state.paths[variant.pathId].variants[variant.id].path[
+          startPointVariant.id
+        ] = JSON.parse(JSON.stringify(startPointVariant));
+        state.paths[variant.pathId].variants[variant.id].path[
+          endPointVariant.id
+        ] = JSON.parse(JSON.stringify(endPointVariant));
+      }
       if (newCurrentPath2.length > 0) {
         // обновляем данные
         state.paths[variant.pathId].variants[variant.id].path = {};
@@ -371,11 +384,16 @@ export const pathSlice = createSlice({
           }
         }
       }
+
       state.paths[variant.pathId].markers[endMarker.id].points =
         newEndMarkerPoints;
     },
 
     // Действия с точками
+    // баг с удалением и новым добавлением точки
+    // удалить добавить добавить и пропадает next ID,
+    // нужно добавлять именно к последней точке скорее всего
+    // иначе ничего не работает
     addPoint: (state, action: PayloadAction<IPoint>) => {
       const point = action.payload;
       // добавляем новую точку в объект
@@ -447,6 +465,24 @@ export const pathSlice = createSlice({
       let prevId = prevPoint.id;
       let currentId = crypto.randomUUID();
       let nextId = crypto.randomUUID();
+      if (prevPoint.nextId != nextPoint.id) {
+        let currentDeletePoint = {
+          ...state.paths[prevPoint.pathId].variants[prevPoint.pathVariantId]
+            .path[prevPoint.nextId],
+        };
+
+        while (currentDeletePoint.id != nextPoint.id) {
+          delete state.paths[currentDeletePoint.pathId].variants[
+            currentDeletePoint.pathVariantId
+          ].path[currentDeletePoint.id];
+
+          currentDeletePoint = {
+            ...state.paths[currentDeletePoint.pathId].variants[
+              currentDeletePoint.pathVariantId
+            ].path[currentDeletePoint.nextId],
+          };
+        }
+      }
 
       for (const latlng of pointsLatLng) {
         const lat = latlng[0];
@@ -470,7 +506,6 @@ export const pathSlice = createSlice({
       }
 
       newPath[newPath.length - 1].nextId = nextPoint.id;
-      console.log(JSON.parse(JSON.stringify(newPath)));
 
       const resultPath = newPath.reduce(
         (acc: { [index: string]: IPoint }, cur) => {
@@ -478,16 +513,6 @@ export const pathSlice = createSlice({
           return acc;
         },
         {},
-      );
-
-      console.log(
-        JSON.parse(
-          JSON.stringify({
-            ...state.paths[prevPoint.pathId].variants[prevPoint.pathVariantId]
-              .path,
-            ...resultPath,
-          }),
-        ),
       );
 
       state.paths[prevPoint.pathId].variants[prevPoint.pathVariantId].path[
@@ -501,8 +526,6 @@ export const pathSlice = createSlice({
         ...state.paths[prevPoint.pathId].variants[prevPoint.pathVariantId].path,
         ...resultPath,
       });
-
-      console.log(JSON.parse(JSON.stringify(ordered)));
 
       const result = ordered.reduce((acc: { [index: string]: IPoint }, cur) => {
         acc[cur.id] = cur;
@@ -529,6 +552,18 @@ export const pathSlice = createSlice({
     ) => {
       const { pathId, pathVariantId, poinstArray } = action.payload;
 
+      const firstPoint = Object.values(
+        state.paths[pathId].variants[pathVariantId].path,
+      ).find((point) => point.prevId == "");
+
+      const lastPoint = Object.values(
+        state.paths[pathId].variants[pathVariantId].path,
+      ).find((point) => point.nextId == "");
+
+      if (!firstPoint || !lastPoint) {
+        return;
+      }
+
       // todo вынести логику в helper она повторяется
       const path = poinstArray
         .map(
@@ -553,7 +588,11 @@ export const pathSlice = createSlice({
           return { ...acc, [point.id]: point };
         }, {} as IPathVariantPointsObject);
 
-      state.paths[pathId].variants[pathVariantId].path = path;
+      state.paths[pathId].variants[pathVariantId].path = {
+        [firstPoint.id]: firstPoint,
+        ...path,
+        [lastPoint.id]: lastPoint,
+      };
     },
 
     editPoint: (state, action: PayloadAction<IPoint>) => {
@@ -589,6 +628,9 @@ export const pathSlice = createSlice({
       }
     },
 
+    //
+    //
+    //
     // действия с маркерами
     addMarker: (state, action: PayloadAction<IMarker>) => {
       const marker = action.payload;
@@ -611,6 +653,13 @@ export const pathSlice = createSlice({
     },
     deleteMarker: (state, action: PayloadAction<IMarker>) => {
       const marker = action.payload;
+
+      for (const point of state.paths[marker.pathId].markers[marker.id]
+        .points) {
+        delete state.paths[point.pathId].variants[point.pathVariantId].path[
+          point.id
+        ].markerId;
+      }
       delete state.paths[marker.pathId].markers[marker.id];
     },
   },
