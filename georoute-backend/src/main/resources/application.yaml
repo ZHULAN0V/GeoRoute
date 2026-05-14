@@ -13,3 +13,6 @@ minio:
   secret-key: "${MINIO_SECRET_KEY:minioadmin}"
   bucket:
     name: "routes"
+
+graphhopper:
+  url: "${GRAPHHOPPER_ENDPOINT:http://localhost:8989}"

@@ -37,6 +37,7 @@ services:
     build: ./georoute-backend
     container_name: georoute-backend
     environment:
+      - GRAPHHOPPER_ENDPOINT=http://graphhopper:8989
       - MINIO_ENDPOINT=http://minio:9000
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin

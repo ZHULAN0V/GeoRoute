@@ -46,6 +46,11 @@
 			<version>4.12.0</version>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>io.jenetics</groupId>
+			<artifactId>jpx</artifactId>
+			<version>3.2.1</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
