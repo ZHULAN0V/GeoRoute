@@ -44,7 +44,7 @@ ${pathPointsString}
 </metadata>
 
 <trk>
-<name>${path.name}</name>
+<name>GraphHopper Track</name>
 ${pathsString}
 </trk>
 
