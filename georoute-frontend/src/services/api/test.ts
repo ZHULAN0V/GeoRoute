@@ -12,23 +12,19 @@ const getTest = async () => {
 </gpx>`;
 
   try {
-    const response = await axios.post(
-      '/api/routes/match',
-      gpxData,
-      {
-        headers: {
-          'Content-Type': 'application/gpx+xml'
-        },
-        params: {
-          profile: 'foot',
-          type: 'json',
-          points_encoded: 'LineString'
-        }
-      }
-    );
+    const response = await axios.post("/api/routes/match", gpxData, {
+      headers: {
+        "Content-Type": "application/gpx+xml",
+      },
+      params: {
+        profile: "foot",
+        type: "json",
+        points_encoded: "LineString",
+      },
+    });
     return response.data;
   } catch (error) {
-    console.error('Error matching GPX track:');
+    console.error("Error matching GPX track:");
     throw error;
   }
 };

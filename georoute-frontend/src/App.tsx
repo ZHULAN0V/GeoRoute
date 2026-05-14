@@ -1,17 +1,17 @@
-import Map from "./components/Map/Map"
-import BottomMenu from "./widgets/BottomMenu/BottomMenu"
-import LeftMenu from "./widgets/LeftMenu/LeftMenu"
-import RightMenu from "./widgets/RightMenu/RightMenu"
+import Map from "./components/Map/Map";
+import BottomMenu from "./widgets/BottomMenu/BottomMenu";
+import LeftMenu from "./widgets/LeftMenu/LeftMenu";
+import RightMenu from "./widgets/RightMenu/RightMenu";
 
 function App() {
   return (
     <>
-      <Map/>  
-      <BottomMenu/>
+      <Map />
+      <BottomMenu />
       <LeftMenu />
-      <RightMenu/>
+      <RightMenu />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

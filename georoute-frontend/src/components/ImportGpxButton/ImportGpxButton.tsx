@@ -1,29 +1,29 @@
-import { useRef, useState } from 'react';
-import parseGpxToCoordinates from '../../lib/helpers/parseGpxIntoArray';
-import { Button } from '@mui/material';
-import FileUploadIcon from '@mui/icons-material/FileUpload';
-import styles from './importGpxButton.module.css';
-import { useDispatch } from 'react-redux';
-import { addPathFromImport } from '../../providers/paths/path-reducer';
+import { useRef, useState } from "react";
+import parseGpxToCoordinates from "../../lib/helpers/parseGpxIntoArray";
+import { Button } from "@mui/material";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
+import styles from "./importGpxButton.module.css";
+import { useDispatch } from "react-redux";
+import { addPathFromImport } from "../../providers/paths/path-reducer";
 
 const GpxUploadButton = () => {
   const dispatch = useDispatch();
-  
-  const [fileName, setFileName] = useState('');
-  const [error, setError] = useState('');
+
+  const [fileName, setFileName] = useState("");
+  const [error, setError] = useState("");
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   // можно вынести в отдельный хук?
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    
+
     setFileName(file.name);
-    setError('');
+    setError("");
     try {
       // Проверяем расширение файла
-      if (!file.name.toLowerCase().endsWith('.gpx')) {
-        throw new Error('Выбранные файл не является GPX файлом');
+      if (!file.name.toLowerCase().endsWith(".gpx")) {
+        throw new Error("Выбранные файл не является GPX файлом");
       }
 
       // Читаем содержимое файла
@@ -32,13 +32,13 @@ const GpxUploadButton = () => {
         try {
           const gpxContent = e.target?.result;
           const parsedCoordinates = parseGpxToCoordinates(String(gpxContent));
-          dispatch(addPathFromImport({points: parsedCoordinates}));
+          dispatch(addPathFromImport({ points: parsedCoordinates }));
         } catch (parseError: Error | unknown) {
-          setError('Error parsing GPX file: ' + (parseError as Error).message);
+          setError("Error parsing GPX file: " + (parseError as Error).message);
         }
       };
       reader.onerror = () => {
-        setError('Error reading file');
+        setError("Error reading file");
       };
       reader.readAsText(file);
     } catch (err: Error | unknown) {
@@ -48,8 +48,8 @@ const GpxUploadButton = () => {
 
   const handleClick = () => {
     // Очищаем предыдущие данные
-    setFileName('');
-    setError('');
+    setFileName("");
+    setError("");
     inputRef.current?.click();
   };
 
@@ -61,19 +61,29 @@ const GpxUploadButton = () => {
         type="file"
         accept=".gpx"
         onChange={handleFileChange}
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
       />
 
       <Button
         onClick={handleClick}
-        startIcon={<FileUploadIcon/>} 
-        variant={'contained'}
+        startIcon={<FileUploadIcon />}
+        variant={"contained"}
       >
         Загрузить GPX
       </Button>
 
-      {fileName && <div className={styles.name}> <p>{fileName}</p> </div> }
-      {error && <div className={styles.error}> <p>{error}</p> </div> }
+      {fileName && (
+        <div className={styles.name}>
+          {" "}
+          <p>{fileName}</p>{" "}
+        </div>
+      )}
+      {error && (
+        <div className={styles.error}>
+          {" "}
+          <p>{error}</p>{" "}
+        </div>
+      )}
     </div>
   );
 };
