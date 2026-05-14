@@ -11,6 +11,7 @@ import { useMatchRouteMutation } from "../../hooks/usePostMatchMap";
 import createXmlString from "../../lib/helpers/downloadGPX";
 import getPathFromCurrentMarkerToNext from "../../lib/helpers/getPathFromCurrentMarkerToNext";
 import getFirstAndLatPointWithMarker from "../../lib/helpers/getFirstAndLatPointWithMarker";
+import parseGpxToCoordinates from "../../lib/helpers/parseGpxIntoArray";
 
 const MatchCurrentPathButton = () => {
   const pathObject = useSelector((state: RootState) => state.pathObject.paths);
@@ -26,14 +27,13 @@ const MatchCurrentPathButton = () => {
   // сложная типизация для graphhopper
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSuccess = (data: any) => {
+    const latLngArray = parseGpxToCoordinates(data);
     if (markerIds.startMarkerId == "") {
       dispatch(
         addManyPointFromMathed({
           pathId,
           pathVariantId,
-          poinstArray: data.paths[0].points.coordinates.map(
-            (x: number[]) => [x[1], x[0]] as [number, number],
-          ),
+          poinstArray: latLngArray,
         }),
       );
     } else {
@@ -46,9 +46,7 @@ const MatchCurrentPathButton = () => {
         addManyPointsBetween({
           prevPoint: path.points[0],
           nextPoint: path.points[1],
-          pointsLatLng: data.paths[0].points.coordinates.map(
-            (x: number[]) => [x[1], x[0]] as [number, number],
-          ),
+          pointsLatLng: latLngArray,
         }),
       );
       dispatch(
