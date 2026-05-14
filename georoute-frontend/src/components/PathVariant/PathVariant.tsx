@@ -89,6 +89,7 @@ function PathVariant(props: IPathVariantProps) {
         <div className={styles["buttons"]}>
           {!pathVariant.isMain && (
             <IconButton
+              title="сделать частью основного маршрута"
               onClick={handleCallMergePath}
               sx={{ width: 28, height: 28 }}
             >
@@ -96,11 +97,16 @@ function PathVariant(props: IPathVariantProps) {
             </IconButton>
           )}
           {!pathVariant.isMain && (
-            <IconButton onClick={handleDelete} sx={{ width: 28, height: 28 }}>
+            <IconButton
+              title="удалить"
+              onClick={handleDelete}
+              sx={{ width: 28, height: 28 }}
+            >
               <DeleteIcon sx={{ width: 20, height: 20, color: "#212121" }} />
             </IconButton>
           )}
           <IconButton
+            title="изменить видимость"
             onClick={handleSetCheckedPath}
             sx={{ width: 28, height: 28 }}
           >

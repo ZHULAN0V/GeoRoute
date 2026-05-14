@@ -4,8 +4,9 @@
   background-color: #ffffff;
   padding: 12px;
   padding-right: 8px;
-  padding-bottom: 8px;
-  height: 56px;
+  padding-bottom: 4px;
+  /* height: 56px; */
+  /* min-height: 56px; */
   /* border-radius: 4px; */
 
   cursor: pointer;
@@ -20,20 +21,30 @@
   background-color: #dbeefd;
 }
 
-/* .left-block {} */
+.left-block {
+  max-width: 115px;
+  /* border: 1px solid #000; */
+}
 
 .title {
   margin-bottom: 4px;
   /* cursor: crosshair; */
   cursor: auto;
+  max-width: 115px;
+  overflow-wrap: break-word;
+  /* border: 1px solid #000; */
 }
 
 .description {
   font-size: 12px;
   cursor: auto;
+  line-height: 12px;
+  /* border: 1px solid #000; */
 }
 
-/* .right-block {} */
+.right-block {
+  /* border: 1px solid #000; */
+}
 
 .color {
   display: flex;
