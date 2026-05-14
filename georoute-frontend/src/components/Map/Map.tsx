@@ -43,6 +43,7 @@ function Map() {
   const currentButton = useSelector(
     (state: RootState) => state.currentButton.currentButton,
   );
+
   const currentPathId = useSelector(
     (state: RootState) => state.currentPathId.currentPathId,
   );
@@ -92,7 +93,7 @@ function Map() {
   // handlers для карты
   const handleMapClick = (e: LeafletMouseEvent) => {
     const { lat, lng } = e.latlng;
-    if (currentButton == "edit" && currentPathId && currentPathVariantId) {
+    if (currentButton == "edit") {
       const newPointId = crypto.randomUUID();
       const newPoint = {
         id: newPointId,
@@ -168,11 +169,6 @@ function Map() {
 
   const handleMarkerDelete = (point: IPoint) => {
     return () => {
-      // нужно изменить current point если была удалена последняя точка
-      // может быть баг при изменении данных точки
-      if (!point.nextId) {
-        dispatch(chosePointId(point.prevId));
-      }
       dispatch(deletePoint(point));
     };
   };
