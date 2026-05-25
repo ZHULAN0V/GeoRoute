@@ -6,7 +6,6 @@ import "leaflet-draw/dist/leaflet.draw.css";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../../providers/store";
-import { selectButton } from "../../providers/paths/active-button-reducer";
 import {
   addPoint,
   editPoint,
@@ -32,13 +31,14 @@ import CurrentLine from "../CurrentLine/CurrentLine";
 import Markers from "../Markers/Markers";
 import Lines from "../Lines/Lines";
 import NodeMarkers from "../NodeMarkers/NodeMarkers";
+import MiddleButtonPan from "../MiddleButtonPan/MiddleButtonPan";
 import { chooseStartMarkerId } from "../../providers/paths/path-segments-ids-reducer";
 import { MAP_LAYERS } from "../../lib/helpers/mapLayers";
 
 function Map() {
   const paths = useSelector((state: RootState) => state.pathObject.paths);
-  const currentButton = useSelector(
-    (state: RootState) => state.currentButton.currentButton,
+  const isEditing = useSelector(
+    (state: RootState) => state.editMode.isEditing,
   );
   const currentPathId = useSelector(
     (state: RootState) => state.currentPathId.currentPathId,
@@ -99,31 +99,32 @@ function Map() {
   // handlers для карты
   const handleMapClick = (e: LeafletMouseEvent) => {
     const { lat, lng } = e.latlng;
-    if (currentButton == "edit" && currentPathId && currentPathVariantId) {
-      const newPointId = crypto.randomUUID();
-      const newPoint = {
-        id: newPointId,
-        nextId: "",
-        prevId:
-          Object.values(variantState || {}).length > 0 ? currentPointId : "",
-        pathId: currentPathId,
-        pathVariantId: currentPathVariantId,
-        lat,
-        lng,
-      };
-      setVariantState({ ...variantState, [newPointId]: newPoint });
-      // const point = paths[currentPathId]?.variants[currentPathVariantId]?.path[currentPointId];
-      dispatch(addPoint(newPoint));
-      dispatch(chosePointId(newPointId));
+    if (
+      !isEditing ||
+      !currentPathId ||
+      !currentPathVariantId
+    ) {
+      return;
     }
+    const newPointId = crypto.randomUUID();
+    const newPoint = {
+      id: newPointId,
+      nextId: "",
+      prevId:
+        Object.values(variantState || {}).length > 0 ? currentPointId : "",
+      pathId: currentPathId,
+      pathVariantId: currentPathVariantId,
+      lat,
+      lng,
+    };
+    setVariantState({ ...variantState, [newPointId]: newPoint });
+    dispatch(addPoint(newPoint));
+    dispatch(chosePointId(newPointId));
   };
 
   const handleMapMouseMove = (e: LeafletMouseEvent) => {
     const { lat, lng } = e.latlng;
-    if (
-      Object.values(variant?.path || {}).length > 0 &&
-      currentButton == "edit"
-    ) {
+    if (Object.values(variant?.path || {}).length > 0 && isEditing) {
       const lastPoint = Object.values(variant?.path)[
         Object.values(variant?.path).length - 1
       ];
@@ -135,10 +136,8 @@ function Map() {
   };
 
   const handleMapContextMenu = () => {
-    // if (currentButton == 'edit') {
-    //   setPositionLineMouse([positionsLine[positionsLine.length - 1], positionsLine[positionsLine.length - 1]]);
-    // }
-    dispatch(selectButton("edit"));
+    // ПКМ по пустой карте/линии — ничего (ТЗ 6).
+    // Удаление вершин и КП происходит на самих маркерах через contextmenu.
   };
 
   // handlers для маркера
@@ -187,30 +186,17 @@ function Map() {
   const handleMarkerClick = (inputPoint: IPoint) => {
     const markerId = crypto.randomUUID();
     const point = { ...inputPoint, markerId };
-    let newMarker: IMarker;
-    if (currentButton == "double") {
-      newMarker = {
-        id: markerId,
-        pathId: point.pathId,
-        name: `Match ${point.id.slice(0, 2)}`,
-        points: [point],
-        order: 0,
-        lat: point.lat,
-        lng: point.lng,
-        isPathMatchMarker: true,
-      };
-    } else {
-      newMarker = {
-        id: markerId,
-        pathId: point.pathId,
-        name: `КП ${point.id.slice(0, 2)}`,
-        points: [point],
-        order: 0,
-        lat: point.lat,
-        lng: point.lng,
-      };
-    }
+    const newMarker: IMarker = {
+      id: markerId,
+      pathId: point.pathId,
+      name: `КП ${point.id.slice(0, 2)}`,
+      points: [point],
+      order: 0,
+      lat: point.lat,
+      lng: point.lng,
+    };
     return () => {
+      if (!isEditing) return;
       dispatch(addMarker(newMarker));
       dispatch(editPoint(point));
     };
@@ -219,7 +205,7 @@ function Map() {
   // handlers для маркеров узловых точек
   const handleMarkerNodeClick = (marker: IMarker) => {
     return () => {
-      if (currentButton == "edit") {
+      if (isEditing) {
         const newPointId = crypto.randomUUID();
         const newPoint = {
           id: newPointId,
@@ -303,6 +289,7 @@ function Map() {
           handleMapMouseMove={handleMapMouseMove}
           handleMapContextMenu={handleMapContextMenu}
         />
+        <MiddleButtonPan />
 
         {/* Все варианты маршрутов */}
         <Lines />

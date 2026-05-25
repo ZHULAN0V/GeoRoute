@@ -104,6 +104,10 @@ function RightMenu() {
     setColor(path?.color || "");
   }, [path]);
 
+  if (!currentPathId || !path) {
+    return null;
+  }
+
   return (
     <div className={styles["right-menu"]}>
       <p>Меню маршрута</p>
@@ -118,7 +122,6 @@ function RightMenu() {
             setName(e.target.value);
             debounced();
           }}
-          // onChange={debounced}
         />
         <ColorInput
           options={{
@@ -136,10 +139,9 @@ function RightMenu() {
 
       <p>Варианты маршрута</p>
       <div className={styles["list"]}>
-        {path &&
-          filteredVariants.map((variant) => (
-            <PathVariant key={variant.id} pathVariant={variant} />
-          ))}
+        {filteredVariants.map((variant) => (
+          <PathVariant key={variant.id} pathVariant={variant} />
+        ))}
       </div>
       <div className={styles.inputsWithColor}>
         <TextField
@@ -164,9 +166,6 @@ function RightMenu() {
         />
       </div>
 
-      {/* <div className={styles['path-data']}>
-        <div className={styles['path-data__text']}><p>Протяженность:</p> <p>12.7 km</p></div>
-      </div> */}
       <Button startIcon={<AddIcon />} onClick={onAddPathVariant}>
         Добавить вариант
       </Button>

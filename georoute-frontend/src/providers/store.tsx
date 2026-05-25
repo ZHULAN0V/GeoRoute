@@ -1,11 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import currentButton from "./paths/active-button-reducer";
 import pathObject from "./paths/path-reducer";
 import currentPathId from "./paths/current-path-id-reducer";
 import currentPathVariantId from "./paths/current-path-variant-id-reducer";
 import currentPointId from "./paths/current-point-id-reducer";
 import markerIds from "./paths/path-segments-ids-reducer";
 import mapLayer from "./paths/map-layer-reducer";
+import editMode from "./paths/edit-mode-reducer";
 
 export const store = configureStore({
   reducer: {
@@ -13,9 +13,9 @@ export const store = configureStore({
     currentPathId,
     currentPathVariantId,
     currentPointId,
-    currentButton,
     markerIds,
     mapLayer,
+    editMode,
   },
 });
 
