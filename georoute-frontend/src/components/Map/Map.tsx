@@ -33,10 +33,7 @@ import Markers from "../Markers/Markers";
 import Lines from "../Lines/Lines";
 import NodeMarkers from "../NodeMarkers/NodeMarkers";
 import { chooseStartMarkerId } from "../../providers/paths/path-segments-ids-reducer";
-
-const tileLayerUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-const tileLayerAttribution =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+import { MAP_LAYERS } from "../../lib/helpers/mapLayers";
 
 function Map() {
   const paths = useSelector((state: RootState) => state.pathObject.paths);
@@ -51,6 +48,9 @@ function Map() {
   );
   const currentPointId = useSelector(
     (state: RootState) => state.currentPointId.currentPointId,
+  );
+  const currentLayer = useSelector(
+    (state: RootState) => state.mapLayer.currentLayer,
   );
 
   const dispatch = useDispatch();
@@ -282,7 +282,13 @@ function Map() {
         zoomControl={false}
         attributionControl={false}
       >
-        <TileLayer attribution={tileLayerAttribution} url={tileLayerUrl} />
+        <TileLayer
+          key={currentLayer}
+          url={MAP_LAYERS[currentLayer].url}
+          attribution={MAP_LAYERS[currentLayer].attribution}
+          subdomains={MAP_LAYERS[currentLayer].subdomains}
+          maxZoom={MAP_LAYERS[currentLayer].maxZoom}
+        />
         <MapHandlerComponent
           handleMapClick={handleMapClick}
           handleMapMouseMove={handleMapMouseMove}

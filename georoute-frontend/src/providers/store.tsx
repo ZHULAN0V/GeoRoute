@@ -5,6 +5,7 @@ import currentPathId from "./paths/current-path-id-reducer";
 import currentPathVariantId from "./paths/current-path-variant-id-reducer";
 import currentPointId from "./paths/current-point-id-reducer";
 import markerIds from "./paths/path-segments-ids-reducer";
+import mapLayer from "./paths/map-layer-reducer";
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     currentPointId,
     currentButton,
     markerIds,
+    mapLayer,
   },
 });
 

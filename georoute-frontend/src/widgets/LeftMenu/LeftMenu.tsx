@@ -1,6 +1,10 @@
 import PathItem from "../../components/PathItem/PathItem";
 import styles from "./leftMenu.module.css";
-import { MenuItem, Select, Button } from "@mui/material";
+import { MenuItem, Select, Button, type SelectChangeEvent } from "@mui/material";
+import {
+  selectMapLayer,
+  type TMapLayer,
+} from "../../providers/paths/map-layer-reducer";
 import AddIcon from "@mui/icons-material/Add";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,7 +28,14 @@ function LeftMenu() {
   const variantId = useSelector(
     (state: RootState) => state.currentPathVariantId.currentPathVariantId,
   );
+  const currentLayer = useSelector(
+    (state: RootState) => state.mapLayer.currentLayer,
+  );
   const dispatch = useDispatch();
+
+  const handleLayerChange = (e: SelectChangeEvent<TMapLayer>) => {
+    dispatch(selectMapLayer(e.target.value as TMapLayer));
+  };
 
   const { data: fileNamesData, isSuccess } = useGetFileNames();
 
@@ -80,8 +91,13 @@ function LeftMenu() {
   return (
     <div className={styles["left-menu"]}>
       <p>Меню маршрутов</p>
-      <Select value={"open"} sx={{ backgroundColor: "#ffffff" }} size={"small"}>
-        <MenuItem value={"open"}>Open street maps</MenuItem>
+      <Select<TMapLayer>
+        value={currentLayer}
+        onChange={handleLayerChange}
+        sx={{ backgroundColor: "#ffffff" }}
+        size={"small"}
+      >
+        <MenuItem value={"osm"}>Open street maps</MenuItem>
         <MenuItem value={"yandex"}>Yandex maps</MenuItem>
         <MenuItem value={"google"}>Google maps</MenuItem>
       </Select>
