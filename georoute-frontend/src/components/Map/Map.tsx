@@ -52,6 +52,13 @@ function Map() {
   const currentLayer = useSelector(
     (state: RootState) => state.mapLayer.currentLayer,
   );
+  const savedView = useSelector((state: RootState) => state.mapLayer.view);
+
+  const layerConfig = MAP_LAYERS[currentLayer];
+  // CRS нельзя менять у живого MapContainer; ремаунтим его только при смене CRS,
+  // чтобы переключение OSM↔Google (одинаковая CRS) не моргало.
+  const crsKey =
+    layerConfig.crs === MAP_LAYERS.yandex.crs ? "epsg3395" : "epsg3857";
 
   const dispatch = useDispatch();
 
@@ -277,17 +284,19 @@ function Map() {
   return (
     <div className={styles.map}>
       <MapContainer
-        center={[56.84, 60.6]}
-        zoom={12}
+        key={crsKey}
+        center={savedView.center}
+        zoom={savedView.zoom}
+        crs={layerConfig.crs}
         zoomControl={false}
         attributionControl={false}
       >
         <TileLayer
           key={currentLayer}
-          url={MAP_LAYERS[currentLayer].url}
-          attribution={MAP_LAYERS[currentLayer].attribution}
-          subdomains={MAP_LAYERS[currentLayer].subdomains}
-          maxZoom={MAP_LAYERS[currentLayer].maxZoom}
+          url={layerConfig.url}
+          attribution={layerConfig.attribution}
+          subdomains={layerConfig.subdomains}
+          maxZoom={layerConfig.maxZoom}
         />
         <MapHandlerComponent
           handleMapClick={handleMapClick}
