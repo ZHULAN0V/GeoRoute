@@ -6,6 +6,7 @@ import currentPointId from "./paths/current-point-id-reducer";
 import markerIds from "./paths/path-segments-ids-reducer";
 import mapLayer from "./paths/map-layer-reducer";
 import editMode from "./paths/edit-mode-reducer";
+import checkpointModal from "./paths/checkpoint-modal-reducer";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     markerIds,
     mapLayer,
     editMode,
+    checkpointModal,
   },
 });
 

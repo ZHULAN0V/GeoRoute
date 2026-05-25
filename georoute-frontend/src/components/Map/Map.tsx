@@ -12,13 +12,13 @@ import {
   addManyPoint,
   deletePoint,
   addPointBetween,
-  addMarker,
   editMarker,
   deleteMarker,
   editPathVariant,
 } from "../../providers/paths/path-reducer";
 
 import { chosePointId } from "../../providers/paths/current-point-id-reducer";
+import { openCheckpointModal } from "../../providers/paths/checkpoint-modal-reducer";
 import type {
   IMarker,
   IPathVariantPointsObject,
@@ -39,6 +39,9 @@ function Map() {
   const paths = useSelector((state: RootState) => state.pathObject.paths);
   const isEditing = useSelector(
     (state: RootState) => state.editMode.isEditing,
+  );
+  const isCheckpointModalOpen = useSelector(
+    (state: RootState) => state.checkpointModal.isOpen,
   );
   const currentPathId = useSelector(
     (state: RootState) => state.currentPathId.currentPathId,
@@ -102,7 +105,8 @@ function Map() {
     if (
       !isEditing ||
       !currentPathId ||
-      !currentPathVariantId
+      !currentPathVariantId ||
+      isCheckpointModalOpen
     ) {
       return;
     }
@@ -174,6 +178,7 @@ function Map() {
 
   const handleMarkerDelete = (point: IPoint) => {
     return () => {
+      if (!isEditing) return;
       // нужно изменить current point если была удалена последняя точка
       // может быть баг при изменении данных точки
       if (!point.nextId) {
@@ -184,25 +189,13 @@ function Map() {
   };
 
   const handleMarkerClick = (inputPoint: IPoint) => {
-    const markerId = crypto.randomUUID();
-    const point = { ...inputPoint, markerId };
-    const newMarker: IMarker = {
-      id: markerId,
-      pathId: point.pathId,
-      name: `КП ${point.id.slice(0, 2)}`,
-      points: [point],
-      order: 0,
-      lat: point.lat,
-      lng: point.lng,
-    };
     return () => {
       if (!isEditing) return;
-      dispatch(addMarker(newMarker));
-      dispatch(editPoint(point));
+      dispatch(openCheckpointModal(inputPoint.id));
     };
   };
 
-  // handlers для маркеров узловых точек
+  // handlers для маркеров узловых точек (КП)
   const handleMarkerNodeClick = (marker: IMarker) => {
     return () => {
       if (isEditing) {
@@ -245,12 +238,17 @@ function Map() {
 
   const handleDragMarkerNode = (marker: IMarker) => {
     return (e: LeafletMouseEvent) => {
+      if (!isEditing) return;
       debouncedDragMarkerNode(marker, e);
     };
   };
 
   const handleMarkerNodeDelete = (marker: IMarker) => {
     return () => {
+      if (!isEditing) return;
+      // ПКМ по КП в редактировании — снимаем привязку «вершина → КП»,
+      // саму точку (вершину) оставляем; deleteMarker удаляет marker
+      // и очищает startMarkerId/endMarkerId у вариантов маршрута.
       dispatch(deleteMarker(marker));
     };
   };

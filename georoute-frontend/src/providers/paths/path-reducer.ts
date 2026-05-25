@@ -656,12 +656,25 @@ export const pathSlice = createSlice({
 
       for (const point of state.paths[marker.pathId].markers[marker.id]
         .points) {
-        delete state.paths[point.pathId].variants[point.pathVariantId].path[
-          point.id
-        ].markerId;
+        const variantPath =
+          state.paths[point.pathId].variants[point.pathVariantId]?.path;
+        if (variantPath && variantPath[point.id]) {
+          delete variantPath[point.id].markerId;
+        }
       }
       delete state.paths[marker.pathId].markers[marker.id];
+
+      // Очистка ссылок на удалённый КП у вариантов (сегментов) маршрута
+      for (const variant of Object.values(state.paths[marker.pathId].variants)) {
+        if (variant.startMarkerId === marker.id) {
+          variant.startMarkerId = undefined;
+        }
+        if (variant.endMarkerId === marker.id) {
+          variant.endMarkerId = undefined;
+        }
+      }
     },
+
   },
 });
 
