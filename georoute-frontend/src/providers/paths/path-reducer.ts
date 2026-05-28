@@ -119,6 +119,7 @@ export const pathSlice = createSlice({
             color: randomVariantColor(),
             distance: 0,
             isVisible: true,
+            isMain: true,
             path: path,
           },
         },
@@ -669,7 +670,9 @@ export const pathSlice = createSlice({
       delete state.paths[marker.pathId].markers[marker.id];
 
       // Очистка ссылок на удалённый КП у вариантов (сегментов) маршрута
-      for (const variant of Object.values(state.paths[marker.pathId].variants)) {
+      for (const variant of Object.values(
+        state.paths[marker.pathId].variants,
+      )) {
         if (variant.startMarkerId === marker.id) {
           variant.startMarkerId = undefined;
         }
@@ -678,7 +681,6 @@ export const pathSlice = createSlice({
         }
       }
     },
-
   },
 });
 
