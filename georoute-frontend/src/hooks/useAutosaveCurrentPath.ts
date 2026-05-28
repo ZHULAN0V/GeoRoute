@@ -12,7 +12,9 @@ export const useAutosaveCurrentPath = () => {
   const currentPathId = useSelector(
     (s: RootState) => s.currentPathId.currentPathId,
   );
-  const path = useSelector((s: RootState) => s.pathObject.paths[currentPathId]);
+  const path = useSelector(
+    (s: RootState) => s.pathObject.present.paths[currentPathId],
+  );
 
   const { mutate } = usePostFile({
     onError: (err: unknown) => {

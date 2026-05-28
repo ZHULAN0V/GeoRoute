@@ -36,7 +36,9 @@ import { chooseStartMarkerId } from "../../providers/paths/path-segments-ids-red
 import { MAP_LAYERS } from "../../lib/helpers/mapLayers";
 
 function Map() {
-  const paths = useSelector((state: RootState) => state.pathObject.paths);
+  const paths = useSelector(
+    (state: RootState) => state.pathObject.present.paths,
+  );
   const isEditing = useSelector(
     (state: RootState) => state.editMode.isEditing,
   );

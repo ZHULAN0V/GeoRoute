@@ -31,7 +31,9 @@ function CheckpointNumberModal() {
   const currentPathVariantId = useSelector(
     (state: RootState) => state.currentPathVariantId.currentPathVariantId,
   );
-  const paths = useSelector((state: RootState) => state.pathObject.paths);
+  const paths = useSelector(
+    (state: RootState) => state.pathObject.present.paths,
+  );
 
   const path = paths[currentPathId];
   const point: IPoint | undefined =

@@ -8,7 +8,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useDispatch, useSelector } from "react-redux";
-import type { RootState } from "../../providers/store";
+import type { AppDispatch, RootState } from "../../providers/store";
 import { useEffect } from "react";
 import { addPath } from "../../providers/paths/path-reducer";
 import type { IPath } from "../../services/types/Path";
@@ -22,7 +22,9 @@ import createXmlString from "../../lib/helpers/downloadGPX";
 import { randomPathColor } from "../../lib/helpers/randomColor";
 
 function LeftMenu() {
-  const pathObject = useSelector((state: RootState) => state.pathObject.paths);
+  const pathObject = useSelector(
+    (state: RootState) => state.pathObject.present.paths,
+  );
   const pathId = useSelector(
     (state: RootState) => state.currentPathId.currentPathId,
   );
@@ -32,7 +34,7 @@ function LeftMenu() {
   const currentLayer = useSelector(
     (state: RootState) => state.mapLayer.currentLayer,
   );
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleLayerChange = (e: SelectChangeEvent<TMapLayer>) => {
     dispatch(selectMapLayer(e.target.value as TMapLayer));

@@ -14,7 +14,9 @@ const SelectSegments = () => {
   const currentPathId = useSelector(
     (state: RootState) => state.currentPathId.currentPathId,
   );
-  const pathObject = useSelector((state: RootState) => state.pathObject.paths);
+  const pathObject = useSelector(
+    (state: RootState) => state.pathObject.present.paths,
+  );
   const markerIds = useSelector((state: RootState) => state.markerIds);
   const dispatch = useDispatch();
 

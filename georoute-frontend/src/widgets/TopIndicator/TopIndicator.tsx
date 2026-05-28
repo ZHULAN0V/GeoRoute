@@ -6,7 +6,9 @@ function TopIndicator() {
   const currentPathId = useSelector(
     (state: RootState) => state.currentPathId.currentPathId,
   );
-  const paths = useSelector((state: RootState) => state.pathObject.paths);
+  const paths = useSelector(
+    (state: RootState) => state.pathObject.present.paths,
+  );
   const isEditing = useSelector(
     (state: RootState) => state.editMode.isEditing,
   );

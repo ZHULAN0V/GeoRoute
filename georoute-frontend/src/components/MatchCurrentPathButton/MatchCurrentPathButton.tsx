@@ -14,7 +14,9 @@ import getFirstAndLatPointWithMarker from "../../lib/helpers/getFirstAndLatPoint
 import parseGpxToCoordinates from "../../lib/helpers/parseGpxIntoArray";
 
 const MatchCurrentPathButton = () => {
-  const pathObject = useSelector((state: RootState) => state.pathObject.paths);
+  const pathObject = useSelector(
+    (state: RootState) => state.pathObject.present.paths,
+  );
   const pathId = useSelector(
     (state: RootState) => state.currentPathId.currentPathId,
   );

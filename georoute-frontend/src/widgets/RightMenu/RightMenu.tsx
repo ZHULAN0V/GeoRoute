@@ -24,7 +24,9 @@ function RightMenu() {
   const currentPathVariantId = useSelector(
     (state: RootState) => state.currentPathVariantId.currentPathVariantId,
   );
-  const pathObject = useSelector((state: RootState) => state.pathObject.paths);
+  const pathObject = useSelector(
+    (state: RootState) => state.pathObject.present.paths,
+  );
   const markerIds = useSelector((state: RootState) => state.markerIds);
   const path = useMemo(
     () => pathObject[currentPathId],

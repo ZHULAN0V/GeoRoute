@@ -25,7 +25,9 @@ const NodeMarkers = (props: INodeMarkersProps) => {
     handleDeleteMarkerNode,
   } = props;
 
-  const pathObject = useSelector((state: RootState) => state.pathObject);
+  const pathObject = useSelector(
+    (state: RootState) => state.pathObject.present,
+  );
   const currentPathId = useSelector(
     (state: RootState) => state.currentPathId.currentPathId,
   );
