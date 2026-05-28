@@ -81,10 +81,12 @@ function RightMenu() {
   // }, 300 );
 
   const onAddPathVariant = () => {
+    const nextVariantNumber =
+      Object.values(path?.variants || {}).filter((v) => !v.isMain).length + 1;
     const newItem = {
       id: crypto.randomUUID(),
       pathId: path?.id || "",
-      name: path?.name || "",
+      name: `Вариант ${nextVariantNumber}`,
       color: randomVariantColor(),
       distance: 0,
       isVisible: true,

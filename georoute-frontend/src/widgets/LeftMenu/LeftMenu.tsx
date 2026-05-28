@@ -9,7 +9,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../../providers/store";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { addPath } from "../../providers/paths/path-reducer";
 import type { IPath } from "../../services/types/Path";
 import GpxUploadButton from "../../components/ImportGpxButton/ImportGpxButton";
@@ -40,14 +40,15 @@ function LeftMenu() {
 
   const { data: fileNamesData, isSuccess } = useGetFileNames();
 
-  const handleIncrement = useCallback(() => {
+  const handleIncrement = () => {
     const id = crypto.randomUUID();
     const variantId = crypto.randomUUID();
     const pathColor = randomPathColor();
+    const nextPathNumber = Object.keys(pathObject).length + 1;
     dispatch(
       addPath({
         id: id,
-        name: `Маршрут ${id.slice(0, 2)}`,
+        name: `Маршрут ${nextPathNumber}`,
         color: pathColor,
         distance: 0,
         checked: true,
@@ -68,7 +69,7 @@ function LeftMenu() {
         },
       }),
     );
-  }, [dispatch]);
+  };
 
   // todo можно вынести в отдельный компонент с кнопкой
   const handleFullDownload = () => {

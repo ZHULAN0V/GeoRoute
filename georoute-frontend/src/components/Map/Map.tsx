@@ -15,10 +15,10 @@ import {
   editMarker,
   deleteMarker,
   editPathVariant,
+  addMarker,
 } from "../../providers/paths/path-reducer";
 
 import { chosePointId } from "../../providers/paths/current-point-id-reducer";
-import { openCheckpointModal } from "../../providers/paths/checkpoint-modal-reducer";
 import type {
   IMarker,
   IPathVariantPointsObject,
@@ -56,6 +56,7 @@ function Map() {
     (state: RootState) => state.mapLayer.currentLayer,
   );
   const savedView = useSelector((state: RootState) => state.mapLayer.view);
+  const markerIds = useSelector((state: RootState) => state.markerIds);
 
   const layerConfig = MAP_LAYERS[currentLayer];
   // CRS нельзя менять у живого MapContainer; ремаунтим его только при смене CRS,
@@ -191,7 +192,30 @@ function Map() {
   const handleMarkerClick = (inputPoint: IPoint) => {
     return () => {
       if (!isEditing) return;
-      dispatch(openCheckpointModal(inputPoint.id));
+      const path = paths[currentPathId];
+      if (!path) return;
+      const usedNames = new Set(
+        Object.values(path.markers).map((m) => m.name?.trim().toLowerCase()),
+      );
+      let n = Object.keys(path.markers).length + 1;
+      let name = `КП ${n}`;
+      while (usedNames.has(name.toLowerCase())) {
+        n += 1;
+        name = `КП ${n}`;
+      }
+      const markerId = crypto.randomUUID();
+      const pointWithMarker: IPoint = { ...inputPoint, markerId };
+      const newMarker: IMarker = {
+        id: markerId,
+        pathId: inputPoint.pathId,
+        name,
+        points: [pointWithMarker],
+        order: 0,
+        lat: inputPoint.lat,
+        lng: inputPoint.lng,
+      };
+      dispatch(addMarker(newMarker));
+      dispatch(editPoint(pointWithMarker));
     };
   };
 
@@ -231,7 +255,11 @@ function Map() {
           editMarker({ ...marker, points: [...marker.points, newPoint] }),
         );
       } else {
-        dispatch(chooseStartMarkerId(marker.id));
+        dispatch(
+          chooseStartMarkerId(
+            markerIds.startMarkerId === marker.id ? "" : marker.id,
+          ),
+        );
       }
     };
   };
