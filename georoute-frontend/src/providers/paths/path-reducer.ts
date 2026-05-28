@@ -9,6 +9,10 @@ import type {
 } from "../../services/types/Path";
 import { initialStateRedux } from "../../lib/helpers/initialState";
 import createOrderedPath from "../../lib/helpers/createOrderedPath";
+import {
+  randomPathColor,
+  randomVariantColor,
+} from "../../lib/helpers/randomColor";
 
 // todo разбить на несколько слайсов,
 // так как сейчас слишком много логики в одном месте,
@@ -102,7 +106,7 @@ export const pathSlice = createSlice({
       state.paths[id] = {
         id: id,
         name: "new path",
-        color: "#ff0000",
+        color: randomPathColor(),
         distance: 0,
         checked: true,
         main: [],
@@ -112,7 +116,7 @@ export const pathSlice = createSlice({
             id: variantId,
             pathId: id,
             name: "Вариант 1",
-            color: "#ff0000",
+            color: randomVariantColor(),
             distance: 0,
             isVisible: true,
             path: path,
@@ -128,7 +132,7 @@ export const pathSlice = createSlice({
         .map((name) => ({
           id: crypto.randomUUID(),
           name: name,
-          color: "#ff0000",
+          color: randomPathColor(),
           distance: 0,
           checked: true,
           main: [], // массив координат

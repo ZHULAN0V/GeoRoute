@@ -15,6 +15,7 @@ import MatchCurrentPathButton from "../../components/MatchCurrentPathButton/Matc
 import SavePathButton from "../../components/SavePathButton/SavePathButton";
 import ColorInput from "../../components/ColorInput/ColorInput";
 import SelectSegments from "../../components/SelectSegments/SelectSegments";
+import { randomVariantColor } from "../../lib/helpers/randomColor";
 
 function RightMenu() {
   const currentPathId = useSelector(
@@ -84,7 +85,7 @@ function RightMenu() {
       id: crypto.randomUUID(),
       pathId: path?.id || "",
       name: path?.name || "",
-      color: path?.color || "#000000",
+      color: randomVariantColor(),
       distance: 0,
       isVisible: true,
       path: {},

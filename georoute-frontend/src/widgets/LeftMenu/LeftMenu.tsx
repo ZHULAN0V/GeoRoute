@@ -19,6 +19,7 @@ import { loadPathJSON } from "../../lib/helpers/uploadPathJSON";
 // import createGPXStringFromPath from "../../lib/helpers/createGPXStringFromPath";
 import createXmlString from "../../lib/helpers/downloadGPX";
 // import getArrayOfPoints from "../../lib/helpers/getArrayOfPoints";
+import { randomPathColor } from "../../lib/helpers/randomColor";
 
 function LeftMenu() {
   const pathObject = useSelector((state: RootState) => state.pathObject.paths);
@@ -42,11 +43,12 @@ function LeftMenu() {
   const handleIncrement = useCallback(() => {
     const id = crypto.randomUUID();
     const variantId = crypto.randomUUID();
+    const pathColor = randomPathColor();
     dispatch(
       addPath({
         id: id,
         name: `Маршрут ${id.slice(0, 2)}`,
-        color: "#ff6a6a",
+        color: pathColor,
         distance: 0,
         checked: true,
         main: [],
@@ -58,7 +60,8 @@ function LeftMenu() {
             name: "Основной",
             isMain: true,
             isVisible: true,
-            color: "#ff6a6a",
+            // Основной вариант наследует цвет маршрута, остальные — рандомный светлый.
+            color: pathColor,
             distance: 0,
             path: {},
           },

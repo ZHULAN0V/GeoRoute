@@ -41,7 +41,7 @@ const Lines = () => {
                 <Polyline
                   pathOptions={{
                     color: y.color,
-                    weight: 4,
+                    weight: y.isMain ? 6 : 4,
                   }}
                   positions={Object.values(y.path).map((t) => [t.lat, t.lng])}
                   // positions={createOrderedPath(y.path).map(t => [t.lat, t.lng])}

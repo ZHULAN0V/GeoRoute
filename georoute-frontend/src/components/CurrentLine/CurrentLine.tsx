@@ -19,12 +19,14 @@ const CurrentLine = (props: CurrentLineProps) => {
     (state: RootState) => state.editMode.isEditing,
   );
 
+  const weight = currentPathVariant?.isMain ? 6 : 4;
+
   return (
     <>
       <Polyline
         pathOptions={{
           color: currentPathVariant?.color || "red",
-          weight: 4,
+          weight,
         }}
         positions={
           Object.values(variantState || {}).map((x) => [x.lat, x.lng]) || []
@@ -36,7 +38,7 @@ const CurrentLine = (props: CurrentLineProps) => {
         <Polyline
           pathOptions={{
             color: currentPathVariant?.color || "red",
-            weight: 4,
+            weight,
           }}
           positions={positionLineMouse}
         />
