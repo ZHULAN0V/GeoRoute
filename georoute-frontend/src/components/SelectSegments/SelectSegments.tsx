@@ -14,7 +14,9 @@ const SelectSegments = () => {
   const currentPathId = useSelector(
     (state: RootState) => state.currentPathId.currentPathId,
   );
-  const pathObject = useSelector((state: RootState) => state.pathObject.paths);
+  const pathObject = useSelector(
+    (state: RootState) => state.pathObject.present.paths,
+  );
   const markerIds = useSelector((state: RootState) => state.markerIds);
   const dispatch = useDispatch();
 
@@ -36,11 +38,11 @@ const SelectSegments = () => {
     }
   };
 
-  const handleEndMarkerSelect = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement, Element>,
-  ) => {
-    dispatch(chooseEndMarkerId(e.target.value));
-  };
+  // const handleEndMarkerSelect = (
+  //   e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement, Element>,
+  // ) => {
+  //   dispatch(chooseEndMarkerId(e.target.value));
+  // };
 
   const debouncedMarker = useDebouncedCallback(() => {
     dispatch(
@@ -57,13 +59,17 @@ const SelectSegments = () => {
         pathObject[currentPathId]?.markers[markerIds.startMarkerId]?.name,
       );
     }
-  }, [currentPathId, markerIds.startMarkerId, pathObject]);
+  }, [currentPathId, markerIds, pathObject]);
 
   useEffect(() => {
     setMarkerName("");
     dispatch(chooseStartMarkerId(""));
     dispatch(chooseEndMarkerId(""));
   }, [currentPathId, dispatch]);
+
+  // useEffect(() => {
+  //   setMarkerName("");
+  // }, []);
 
   return (
     <div className={styles.markerInputs}>
@@ -72,7 +78,7 @@ const SelectSegments = () => {
           className={styles.selectItem}
           value={markerIds.startMarkerId}
           onChange={handleStartMarkerSelect}
-          label="Старт"
+          label="От"
           sx={{ backgroundColor: "#ffffff", borderRadius: 1 }}
           size={"small"}
           select
@@ -82,22 +88,6 @@ const SelectSegments = () => {
             <MenuItem value={marker.id}>{marker.name}</MenuItem>
           ))}
         </TextField>
-        <TextField
-          className={styles.selectItem}
-          value={markerIds.endMarkerId}
-          label="Конец"
-          onChange={handleEndMarkerSelect}
-          sx={{ backgroundColor: "#ffffff", borderRadius: 1 }}
-          size={"small"}
-          select
-        >
-          <MenuItem value={""}>Нет</MenuItem>
-          {...markers.map((marker) => (
-            <MenuItem value={marker.id}>{marker.name}</MenuItem>
-          ))}
-        </TextField>
-      </div>
-      <div className={styles.inputFlex}>
         <TextField
           className={styles.input}
           label="Название Маркера"

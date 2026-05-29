@@ -5,7 +5,9 @@ import type { IPathVariant } from "../../services/types/Path";
 import { useCallback } from "react";
 
 const Lines = () => {
-  const paths = useSelector((state: RootState) => state.pathObject.paths);
+  const paths = useSelector(
+    (state: RootState) => state.pathObject.present.paths,
+  );
   const variantId = useSelector(
     (state: RootState) => state.currentPathVariantId.currentPathVariantId,
   );
@@ -41,7 +43,7 @@ const Lines = () => {
                 <Polyline
                   pathOptions={{
                     color: y.color,
-                    weight: 4,
+                    weight: y.isMain ? 6 : 4,
                   }}
                   positions={Object.values(y.path).map((t) => [t.lat, t.lng])}
                   // positions={createOrderedPath(y.path).map(t => [t.lat, t.lng])}

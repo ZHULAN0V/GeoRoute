@@ -1,5 +1,7 @@
 import type { LeafletMouseEvent } from "leaflet";
 import { useMapEvent } from "react-leaflet";
+import { useDispatch } from "react-redux";
+import { saveMapView } from "../../providers/paths/map-layer-reducer";
 
 interface MapHandlerComponentProps {
   handleMapClick: (e: LeafletMouseEvent) => void;
@@ -9,7 +11,8 @@ interface MapHandlerComponentProps {
 
 function MapHandlerComponent(props: MapHandlerComponentProps) {
   const { handleMapClick, handleMapMouseMove, handleMapContextMenu } = props;
-  // const map = useMap();
+  const dispatch = useDispatch();
+
   useMapEvent("click", (e) => {
     // ЛКМ
     handleMapClick(e);
@@ -25,6 +28,13 @@ function MapHandlerComponent(props: MapHandlerComponentProps) {
   useMapEvent("contextmenu", () => {
     // ПКМ
     handleMapContextMenu();
+  });
+  useMapEvent("moveend", (e) => {
+    const map = e.target;
+    const center = map.getCenter();
+    dispatch(
+      saveMapView({ center: [center.lat, center.lng], zoom: map.getZoom() }),
+    );
   });
   return null;
 }

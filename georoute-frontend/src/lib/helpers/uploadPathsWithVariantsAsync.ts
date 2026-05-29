@@ -10,6 +10,7 @@ import type {
 } from "../../services/types/Path";
 import parseGPXIntoMarkers from "./parseGpxIntoMarkers";
 import parseGpxIntoPaths from "./parseGPXIntoPaths";
+import { randomPathColor, randomVariantColor } from "./randomColor";
 
 export const loadPathsFromNamesWithVariantsAndMarkers = async (
   names: string[],
@@ -70,7 +71,7 @@ export const loadPathsFromNamesWithVariantsAndMarkers = async (
               id: variantId,
               pathId: pathId,
               name: `Вариант ${index}`,
-              color: "#ff0000",
+              color: randomVariantColor(),
               distance: 0,
               isVisible: true,
               path: pointsObject,
@@ -83,7 +84,7 @@ export const loadPathsFromNamesWithVariantsAndMarkers = async (
       const newPath: IPath = {
         id: pathId,
         name: name,
-        color: "#ff0000",
+        color: randomPathColor(),
         distance: 0,
         checked: true,
         main: [],

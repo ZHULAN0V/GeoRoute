@@ -15,16 +15,18 @@ interface CurrentLineProps {
 
 const CurrentLine = (props: CurrentLineProps) => {
   const { currentPathVariant, variantState, positionLineMouse } = props;
-  const currentButton = useSelector(
-    (state: RootState) => state.currentButton.currentButton,
+  const isEditing = useSelector(
+    (state: RootState) => state.editMode.isEditing,
   );
+
+  const weight = currentPathVariant?.isMain ? 6 : 4;
 
   return (
     <>
       <Polyline
         pathOptions={{
           color: currentPathVariant?.color || "red",
-          weight: 4,
+          weight,
         }}
         positions={
           Object.values(variantState || {}).map((x) => [x.lat, x.lng]) || []
@@ -32,11 +34,11 @@ const CurrentLine = (props: CurrentLineProps) => {
         eventHandlers={{}}
       />
 
-      {currentButton == "edit" && (
+      {isEditing && (
         <Polyline
           pathOptions={{
             color: currentPathVariant?.color || "red",
-            weight: 4,
+            weight,
           }}
           positions={positionLineMouse}
         />

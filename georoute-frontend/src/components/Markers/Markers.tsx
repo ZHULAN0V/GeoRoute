@@ -1,5 +1,7 @@
 import { Icon, type LeafletMouseEvent } from "leaflet";
 import { Marker } from "react-leaflet";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../providers/store";
 import type {
   IPathVariantPointsObject,
   IPoint,
@@ -8,7 +10,6 @@ import plus from "../../assets/icons/plus.svg";
 import pointMove from "../../assets/icons/point_move.svg";
 
 const customIcon = new Icon({
-  // iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Yandex_Maps_icon.svg/1280px-Yandex_Maps_icon.svg.png',
   iconUrl: pointMove,
   iconSize: [20, 20],
   iconAnchor: [10, 10],
@@ -39,31 +40,39 @@ const Markers = (props: IMarkersProps) => {
     handleMarkerClick,
   } = props;
 
+  const isEditing = useSelector(
+    (state: RootState) => state.editMode.isEditing,
+  );
+
+  if (!isEditing) {
+    return null;
+  }
+
+  const allPoints = Object.values(variantState || {});
+
   return (
     <>
-      {/* Маркеры точек выбранного варианта */}
-      {Object.values(variantState || {}).map((point) => (
-        <Marker
-          key={`${point.id}`}
-          position={[point.lat, point.lng]}
-          draggable
-          icon={customIcon}
-          eventHandlers={{
-            // @ts-expect-error неправильно определен тип в библиотеке
-            drag: handleDragMarker(point),
-            // чтобы оптимизировать маршрут можно использовать dragend
-            // но тогда не будет плавности перемещения
-            // dragend: handleDragMarker(point),
-            contextmenu: handleMarkerDelete(point),
-            // dragstart: handleDragMarker(m)
-            click: handleMarkerClick(point),
-          }}
-        />
-      ))}
+      {/* Маркеры вершин (без КП) выбранного варианта — только в режиме редактирования */}
+      {allPoints
+        .filter((point) => !point.markerId)
+        .map((point) => (
+          <Marker
+            key={`${point.id}`}
+            position={[point.lat, point.lng]}
+            draggable
+            icon={customIcon}
+            eventHandlers={{
+              // @ts-expect-error неправильно определен тип в библиотеке
+              drag: handleDragMarker(point),
+              contextmenu: handleMarkerDelete(point),
+              click: handleMarkerClick(point),
+            }}
+          />
+        ))}
 
-      {/* Маркеры промежуточных точек выбранного варианта */}
-      {Object.values(variantState || {}).map((point, index, points) => {
-        if (index == points.length - 1) {
+      {/* «Плюсы» между соседними точками */}
+      {allPoints.map((point, index, points) => {
+        if (index === points.length - 1) {
           return <div key={`intermediate ${point.id}`}></div>;
         }
         const lat = (points[index].lat + points[index + 1].lat) / 2;

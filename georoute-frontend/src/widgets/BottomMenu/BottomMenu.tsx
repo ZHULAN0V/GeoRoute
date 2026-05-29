@@ -1,41 +1,89 @@
+import { useEffect } from "react";
 import { IconButton } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import UndoIcon from "@mui/icons-material/Undo";
 import RedoIcon from "@mui/icons-material/Redo";
-import TurnSharpRightIcon from "@mui/icons-material/TurnSharpRight";
 import styles from "./bottomMenu.module.css";
 import { useDispatch, useSelector } from "react-redux";
-import { selectButton } from "../../providers/paths/active-button-reducer";
-import type { TButtonType } from "../../providers/paths/active-button-reducer";
+import { ActionCreators } from "redux-undo";
+import { toggleEditing } from "../../providers/paths/edit-mode-reducer";
 import type { RootState } from "../../providers/store";
 
 function BottomMenu() {
-  // const currentPath = useSelector((state: RootState) => state.currentButton.currentButton)
   const dispatch = useDispatch();
-  const currentButton = useSelector(
-    (state: RootState) => state.currentButton.currentButton,
+  const isEditing = useSelector(
+    (state: RootState) => state.editMode.isEditing,
+  );
+  const currentPathId = useSelector(
+    (state: RootState) => state.currentPathId.currentPathId,
+  );
+  const canUndo = useSelector(
+    (state: RootState) => state.pathObject.past.length > 0,
+  );
+  const canRedo = useSelector(
+    (state: RootState) => state.pathObject.future.length > 0,
   );
 
-  const handleClick = (action: TButtonType) => {
-    return function () {
-      dispatch(selectButton(action));
+  const handleUndo = () => {
+    if (canUndo) dispatch(ActionCreators.undo());
+  };
+
+  const handleRedo = () => {
+    if (canRedo) dispatch(ActionCreators.redo());
+  };
+
+  useEffect(() => {
+    if (!currentPathId) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const ctrl = event.ctrlKey || event.metaKey;
+      if (!ctrl) return;
+
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      const key = event.key.toLowerCase();
+      if (key === "z" && !event.shiftKey) {
+        event.preventDefault();
+        if (canUndo) dispatch(ActionCreators.undo());
+      } else if ((key === "z" && event.shiftKey) || key === "y") {
+        event.preventDefault();
+        if (canRedo) dispatch(ActionCreators.redo());
+      }
     };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentPathId, canUndo, canRedo, dispatch]);
+
+  if (!currentPathId) {
+    return null;
+  }
+
+  const handleToggleEdit = () => {
+    dispatch(toggleEditing());
   };
 
   return (
     <div className={styles["bottom-menu"]}>
       <IconButton
-        onClick={handleClick("edit")}
+        onClick={handleToggleEdit}
         title="редактировать"
         sx={{
-          backgroundColor:
-            currentButton === "edit"
-              ? "rgba(37, 99, 235, 0.16)"
-              : "transparent",
+          backgroundColor: isEditing
+            ? "rgba(37, 99, 235, 0.16)"
+            : "transparent",
           "&:hover": {
-            backgroundColor:
-              currentButton === "edit" ? "rgba(37, 99, 235, 0.24)" : undefined,
+            backgroundColor: isEditing
+              ? "rgba(37, 99, 235, 0.24)"
+              : undefined,
           },
         }}
       >
@@ -43,75 +91,19 @@ function BottomMenu() {
       </IconButton>
 
       <IconButton
-        onClick={handleClick("delete")}
-        title="удалить"
-        sx={{
-          backgroundColor:
-            currentButton === "delete"
-              ? "rgba(37, 99, 235, 0.16)"
-              : "transparent",
-          "&:hover": {
-            backgroundColor:
-              currentButton === "delete"
-                ? "rgba(37, 99, 235, 0.24)"
-                : undefined,
-          },
-        }}
+        onClick={handleUndo}
+        disabled={!canUndo}
+        title="отменить (Ctrl+Z)"
       >
-        <DeleteIcon sx={{ color: "#212121" }} />
+        <UndoIcon sx={{ color: canUndo ? "#212121" : "#9e9e9e" }} />
       </IconButton>
 
       <IconButton
-        onClick={handleClick("double")}
-        title="частичный мэтчинг"
-        sx={{
-          backgroundColor:
-            currentButton === "double"
-              ? "rgba(37, 99, 235, 0.16)"
-              : "transparent",
-          "&:hover": {
-            backgroundColor:
-              currentButton === "double"
-                ? "rgba(37, 99, 235, 0.24)"
-                : undefined,
-          },
-        }}
+        onClick={handleRedo}
+        disabled={!canRedo}
+        title="вернуть отмененное (Ctrl+Shift+Z)"
       >
-        <TurnSharpRightIcon sx={{ color: "#212121" }} />
-      </IconButton>
-
-      <IconButton
-        onClick={handleClick("undo")}
-        title="отменить"
-        sx={{
-          backgroundColor:
-            currentButton === "undo"
-              ? "rgba(37, 99, 235, 0.16)"
-              : "transparent",
-          "&:hover": {
-            backgroundColor:
-              currentButton === "undo" ? "rgba(37, 99, 235, 0.24)" : undefined,
-          },
-        }}
-      >
-        <UndoIcon sx={{ color: "#212121" }} />
-      </IconButton>
-
-      <IconButton
-        onClick={handleClick("redo")}
-        title="вернуть отмененное"
-        sx={{
-          backgroundColor:
-            currentButton === "redo"
-              ? "rgba(37, 99, 235, 0.16)"
-              : "transparent",
-          "&:hover": {
-            backgroundColor:
-              currentButton === "redo" ? "rgba(37, 99, 235, 0.24)" : undefined,
-          },
-        }}
-      >
-        <RedoIcon sx={{ color: "#212121" }} />
+        <RedoIcon sx={{ color: canRedo ? "#212121" : "#9e9e9e" }} />
       </IconButton>
     </div>
   );

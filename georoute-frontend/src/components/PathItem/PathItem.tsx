@@ -12,7 +12,12 @@ import {
   chosePathId,
   unchosePathId,
 } from "../../providers/paths/current-path-id-reducer";
-import { setPathVariantId } from "../../providers/paths/current-path-variant-id-reducer";
+import {
+  setPathVariantId,
+  unsetPathVariantId,
+} from "../../providers/paths/current-path-variant-id-reducer";
+import { unchosePointId } from "../../providers/paths/current-point-id-reducer";
+import { setEditing } from "../../providers/paths/edit-mode-reducer";
 import { useDeleteFileByName } from "../../hooks/useDeleteFileByName";
 import calculateRouteDistance from "../../lib/helpers/calculateRouteDistance";
 
@@ -44,17 +49,25 @@ function PathItem(props: IPathItemProps) {
     deleteFile({ fileName: path.id });
     if (currentPathId == path.id) {
       dispatch(unchosePathId());
+      dispatch(unsetPathVariantId());
+      dispatch(unchosePointId());
+      dispatch(setEditing(false));
     }
   };
 
   const handleChosePath = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.stopPropagation();
-    if (currentPathId != "") {
-      dispatch(setPathVariantId(""));
+    if (currentPathId == path.id) {
+      dispatch(unchosePathId());
+      dispatch(unsetPathVariantId());
+      dispatch(unchosePointId());
+      dispatch(setEditing(false));
     } else {
+      dispatch(chosePathId(path.id));
       dispatch(setPathVariantId(Object.keys(path.variants)[0] || ""));
+      dispatch(unchosePointId());
+      dispatch(setEditing(false));
     }
-    dispatch(chosePathId(path.id));
   };
 
   const handleSetCheckedPath = (

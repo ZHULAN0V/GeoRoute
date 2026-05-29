@@ -15,4 +15,8 @@
 .select > .selectItem {
   flex: 1 0 auto;
   max-width: 96px;
+  min-width: 48px;
+}
+.input {
+  width: 128px;
 }

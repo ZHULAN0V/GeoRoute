@@ -15,6 +15,7 @@ import MatchCurrentPathButton from "../../components/MatchCurrentPathButton/Matc
 import SavePathButton from "../../components/SavePathButton/SavePathButton";
 import ColorInput from "../../components/ColorInput/ColorInput";
 import SelectSegments from "../../components/SelectSegments/SelectSegments";
+import { randomVariantColor } from "../../lib/helpers/randomColor";
 
 function RightMenu() {
   const currentPathId = useSelector(
@@ -23,7 +24,9 @@ function RightMenu() {
   const currentPathVariantId = useSelector(
     (state: RootState) => state.currentPathVariantId.currentPathVariantId,
   );
-  const pathObject = useSelector((state: RootState) => state.pathObject.paths);
+  const pathObject = useSelector(
+    (state: RootState) => state.pathObject.present.paths,
+  );
   const markerIds = useSelector((state: RootState) => state.markerIds);
   const path = useMemo(
     () => pathObject[currentPathId],
@@ -80,11 +83,13 @@ function RightMenu() {
   // }, 300 );
 
   const onAddPathVariant = () => {
+    const nextVariantNumber =
+      Object.values(path?.variants || {}).filter((v) => !v.isMain).length + 1;
     const newItem = {
       id: crypto.randomUUID(),
       pathId: path?.id || "",
-      name: path?.name || "",
-      color: path?.color || "#000000",
+      name: `Вариант ${nextVariantNumber}`,
+      color: randomVariantColor(),
       distance: 0,
       isVisible: true,
       path: {},
@@ -104,6 +109,10 @@ function RightMenu() {
     setColor(path?.color || "");
   }, [path]);
 
+  if (!currentPathId || !path) {
+    return null;
+  }
+
   return (
     <div className={styles["right-menu"]}>
       <p>Меню маршрута</p>
@@ -118,7 +127,6 @@ function RightMenu() {
             setName(e.target.value);
             debounced();
           }}
-          // onChange={debounced}
         />
         <ColorInput
           options={{
@@ -136,10 +144,9 @@ function RightMenu() {
 
       <p>Варианты маршрута</p>
       <div className={styles["list"]}>
-        {path &&
-          filteredVariants.map((variant) => (
-            <PathVariant key={variant.id} pathVariant={variant} />
-          ))}
+        {filteredVariants.map((variant) => (
+          <PathVariant key={variant.id} pathVariant={variant} />
+        ))}
       </div>
       <div className={styles.inputsWithColor}>
         <TextField
@@ -164,9 +171,6 @@ function RightMenu() {
         />
       </div>
 
-      {/* <div className={styles['path-data']}>
-        <div className={styles['path-data__text']}><p>Протяженность:</p> <p>12.7 km</p></div>
-      </div> */}
       <Button startIcon={<AddIcon />} onClick={onAddPathVariant}>
         Добавить вариант
       </Button>

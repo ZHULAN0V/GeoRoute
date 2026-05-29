@@ -25,7 +25,9 @@ interface IPathVariantProps {
 
 function PathVariant(props: IPathVariantProps) {
   const { pathVariant } = props;
-  const pathObject = useSelector((state: RootState) => state.pathObject.paths);
+  const pathObject = useSelector(
+    (state: RootState) => state.pathObject.present.paths,
+  );
   const currentPathVariantId = useSelector(
     (state: RootState) => state.currentPathVariantId.currentPathVariantId,
   );

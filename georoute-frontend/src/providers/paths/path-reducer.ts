@@ -9,6 +9,10 @@ import type {
 } from "../../services/types/Path";
 import { initialStateRedux } from "../../lib/helpers/initialState";
 import createOrderedPath from "../../lib/helpers/createOrderedPath";
+import {
+  randomPathColor,
+  randomVariantColor,
+} from "../../lib/helpers/randomColor";
 
 // todo разбить на несколько слайсов,
 // так как сейчас слишком много логики в одном месте,
@@ -102,7 +106,7 @@ export const pathSlice = createSlice({
       state.paths[id] = {
         id: id,
         name: "new path",
-        color: "#ff0000",
+        color: randomPathColor(),
         distance: 0,
         checked: true,
         main: [],
@@ -112,9 +116,10 @@ export const pathSlice = createSlice({
             id: variantId,
             pathId: id,
             name: "Вариант 1",
-            color: "#ff0000",
+            color: randomVariantColor(),
             distance: 0,
             isVisible: true,
+            isMain: true,
             path: path,
           },
         },
@@ -128,7 +133,7 @@ export const pathSlice = createSlice({
         .map((name) => ({
           id: crypto.randomUUID(),
           name: name,
-          color: "#ff0000",
+          color: randomPathColor(),
           distance: 0,
           checked: true,
           main: [], // массив координат
@@ -656,11 +661,25 @@ export const pathSlice = createSlice({
 
       for (const point of state.paths[marker.pathId].markers[marker.id]
         .points) {
-        delete state.paths[point.pathId].variants[point.pathVariantId].path[
-          point.id
-        ].markerId;
+        const variantPath =
+          state.paths[point.pathId].variants[point.pathVariantId]?.path;
+        if (variantPath && variantPath[point.id]) {
+          delete variantPath[point.id].markerId;
+        }
       }
       delete state.paths[marker.pathId].markers[marker.id];
+
+      // Очистка ссылок на удалённый КП у вариантов (сегментов) маршрута
+      for (const variant of Object.values(
+        state.paths[marker.pathId].variants,
+      )) {
+        if (variant.startMarkerId === marker.id) {
+          variant.startMarkerId = undefined;
+        }
+        if (variant.endMarkerId === marker.id) {
+          variant.endMarkerId = undefined;
+        }
+      }
     },
   },
 });

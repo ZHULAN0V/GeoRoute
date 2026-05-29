@@ -6,7 +6,9 @@ import { usePostFile } from "../../hooks/usePostFile";
 import createGPXStringFromPath from "../../lib/helpers/createGPXStringFromPath";
 
 const SavePathButton = () => {
-  const pathObject = useSelector((state: RootState) => state.pathObject.paths);
+  const pathObject = useSelector(
+    (state: RootState) => state.pathObject.present.paths,
+  );
   const pathId = useSelector(
     (state: RootState) => state.currentPathId.currentPathId,
   );
