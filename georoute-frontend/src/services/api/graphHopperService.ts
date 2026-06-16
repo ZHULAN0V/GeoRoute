@@ -3,7 +3,6 @@ import axios from "axios";
 // todo добавить тип возвращаемого значения
 // нужно его взять из документации graphHopper
 const getMatchedPath = async (gpxData: string) => {
-  console.log(gpxData);
   try {
     const response = await axios.post("/api/routes/match", gpxData, {
       headers: {
@@ -12,7 +11,7 @@ const getMatchedPath = async (gpxData: string) => {
       params: {
         profile: "foot", // тип маршрута 1 из следующих: foot, bike, car
         gps_accuracy: 20, // точность маршрута в метрах
-        // type: "json",
+        type: "json",
         points_encoded: "LineString",
       },
     });
